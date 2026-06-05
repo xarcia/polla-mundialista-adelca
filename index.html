@@ -882,6 +882,9 @@ html, body {
     });
   }
 </script>
+
+
+
 <body>
 
   <!-- SUPABASE -->
@@ -1579,7 +1582,7 @@ function P1(){
     <div class="ib">${ico('db')}<span>Ingresa tu <strong>código de empleado</strong></span></div>
     <div class="fg">
       <div class="fl">Código de empleado <span class="r">*</span></div>
-      <input type="text" id="FINP" placeholder="Ej: 4276" value="${fd.cod}" maxlength="8" inputmode="numeric" autocomplete="off"
+      <input type="text" id="FINP" placeholder="Ej: 0001" value="${fd.cod}" maxlength="8" inputmode="numeric" autocomplete="off"
         style="font-size:28px;font-weight:900;letter-spacing:5px;text-align:center"
         class="${lk==='ok'?'ok2':lk==='notfound'||lk==='invalid'?'er2':''}">
       <div id="HM" class="${hc}">${ico(hi)}<span>${hm}</span></div>
@@ -1769,7 +1772,7 @@ function P4(){
         </select>
         <div>
           <div class="ml">Goles pronosticados</div>
-          <input type="number" id="FG${p.i}" min="0" max="20" value="${fd.g[p.i]>0?fd.g[p.i]:''}" placeholder="0" style="text-align:center">
+          <input type="number" id="FG${p.i}" min="0" step="1" max="20" value="${fd.g[p.i]>0?fd.g[p.i]:''}" placeholder="0" style="text-align:center">
         </div>
       </div>
     </div>`).join('')}
@@ -2110,5 +2113,82 @@ document.addEventListener('mouseenter',function(){el.style.opacity='1';});
 (function loop(){cx+=(rx-cx)*.35;cy+=(ry-cy)*.35;var dx=rx-cx,dy=ry-cy;spin+=Math.sqrt(dx*dx+dy*dy)*.8;el.style.left=cx+'px';el.style.top=cy+'px';el.style.transform='translate(-50%,-50%) rotate('+spin+'deg)';requestAnimationFrame(loop);})();
 })();
 </script>
+
+
+<!-- ==========================================================
+VALIDACIÓN PARA INPUTS NUMÉRICOS
+Objetivo: permitir SOLO números enteros positivos o cero.
+Bloquea: negativos (-), decimales (.), comas (,), letras y notación científica (e/E).
+Ubicación recomendada: pegar este bloque justo antes de </body> en index.html
+========================================================== -->
+<script>
+(function () {
+  function prepararInputNumerico(input) {
+    // Refuerzo HTML para navegadores modernos
+    input.setAttribute('min', '0');
+    input.setAttribute('step', '1');
+    input.setAttribute('inputmode', 'numeric');
+    input.setAttribute('pattern', '[0-9]*');
+
+    // Bloquear caracteres no permitidos desde teclado
+    input.addEventListener('keydown', function (e) {
+      const teclasBloqueadas = ['-', '+', '.', ',', 'e', 'E'];
+      if (teclasBloqueadas.includes(e.key)) {
+        e.preventDefault();
+      }
+    });
+
+    // Limpiar cualquier valor pegado o escrito manualmente
+    input.addEventListener('input', function () {
+      const valorLimpio = this.value.replace(/[^0-9]/g, '');
+      this.value = valorLimpio;
+
+      if (this.value !== '' && Number(this.value) < 0) {
+        this.value = '0';
+      }
+
+      this.setCustomValidity('');
+    });
+
+    // Validación final al salir del campo
+    input.addEventListener('blur', function () {
+      if (this.value !== '') {
+        this.value = String(parseInt(this.value, 10));
+      }
+    });
+  }
+
+  function aplicarValidacionNumerica() {
+    document.querySelectorAll('input[type="number"]').forEach(prepararInputNumerico);
+  }
+
+  // Aplica al cargar la página
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', aplicarValidacionNumerica);
+  } else {
+    aplicarValidacionNumerica();
+  }
+
+  // Si tu página crea inputs dinámicamente, también los valida automáticamente
+  const observador = new MutationObserver(function (mutations) {
+    mutations.forEach(function (mutation) {
+      mutation.addedNodes.forEach(function (node) {
+        if (node.nodeType !== 1) return;
+
+        if (node.matches && node.matches('input[type="number"]')) {
+          prepararInputNumerico(node);
+        }
+
+        if (node.querySelectorAll) {
+          node.querySelectorAll('input[type="number"]').forEach(prepararInputNumerico);
+        }
+      });
+    });
+  });
+
+  observador.observe(document.body, { childList: true, subtree: true });
+})();
+</script>
+
 </body>
 </html>
