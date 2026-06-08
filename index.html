@@ -837,6 +837,7 @@ html, body {
       method:'GET',
       headers:{
         'apikey': SUPA_KEY,
+        'Authorization': 'Bearer '+SUPA_KEY,
         'Accept': 'application/json',
         'Accept-Profile': 'mil'
       }
@@ -854,6 +855,7 @@ html, body {
       method:'POST',
       headers:{
         'apikey': SUPA_KEY,
+        'Authorization': 'Bearer '+SUPA_KEY,
         'Content-Type': 'application/json',
         'Content-Profile': 'mil',
         'Prefer': 'return=minimal'
@@ -865,6 +867,27 @@ html, body {
     });
   }
 
+
+  /* Helper: RPC para actualizar pronósticos sin exponer UPDATE directo a la tabla */
+  function supaRpc(fn, body){
+    var url = SUPA_URL+'/rest/v1/rpc/'+fn;
+    return fetch(url, {
+      method:'POST',
+      headers:{
+        'apikey': SUPA_KEY,
+        'Authorization': 'Bearer '+SUPA_KEY,
+        'Content-Type': 'application/json',
+        'Content-Profile': 'mil',
+        'Accept-Profile': 'mil',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify(body||{})
+    }).then(function(r){
+      if(r.status===204||r.status===200) return {error:null};
+      return r.json().then(function(d){ return {error:d, status:r.status}; });
+    });
+  }
+
   /* Helper: INSERT (alias semántico de supaPost) */
   function sbInsert(table, payload){
     var url = SUPA_URL+'/rest/v1/'+table;
@@ -872,6 +895,7 @@ html, body {
       method:'POST',
       headers:{
         'apikey': SUPA_KEY,
+        'Authorization': 'Bearer '+SUPA_KEY,
         'Content-Type': 'application/json',
         'Content-Profile': 'mil',
         'Prefer': 'return=minimal'
@@ -1177,6 +1201,16 @@ function autoSlide(){clearInterval(slideTimer);slideTimer=setInterval(()=>goSlid
 /* ── MUNDIAL & COUNTDOWN ── */
 const MUNDIAL=new Date('2026-06-11T16:00:00-05:00');
 const mundialStarted=()=>new Date()>=MUNDIAL;
+const pronosticoAbierto=()=>!mundialStarted();
+function bloquearInputsPronostico(){
+  const cerrado=!pronosticoAbierto();
+  ['p1','p2','p3','p4'].forEach(k=>{const el=document.getElementById('F'+k);if(el)el.disabled=cerrado;});
+  [0,1,2,3].forEach(i=>{const el=document.getElementById('FG'+i);if(el)el.disabled=cerrado;});
+  const btn=document.getElementById('BP');
+  if(btn)btn.disabled=cerrado;
+  const pe=document.getElementById('PE');
+  if(cerrado&&pe){pe.style.display='block';pe.textContent='El contador terminó. Los pronósticos ya no pueden modificarse.';}
+}
 const pad=n=>String(Math.max(0,n)).padStart(2,'0');
 
 function mundialConfetti(){
@@ -1201,7 +1235,7 @@ function checkAndShowMundial(){
 /* sidebar countdown */
 function updCD(){
   var diff=MUNDIAL-new Date(),wrap=document.getElementById('CD_BOXES_WRAP'),msg=document.getElementById('CD_URGENCY_MSG');
-  if(diff<=0){['CD_D','CD_H','CD_M','CD_S'].forEach(function(id){var e=document.getElementById(id);if(e)e.textContent='00';});if(msg)msg.textContent='¡El Mundial comenzó!';return;}
+  if(diff<=0){['CD_D','CD_H','CD_M','CD_S'].forEach(function(id){var e=document.getElementById(id);if(e)e.textContent='00';});if(msg)msg.textContent='¡El Mundial comenzó!';bloquearInputsPronostico();return;}
   var d=Math.floor(diff/864e5),h=Math.floor((diff%864e5)/36e5),m=Math.floor((diff%36e5)/6e4),s=Math.floor((diff%6e4)/1e3);
   ['CD_D','CD_H','CD_M','CD_S'].forEach(function(id,i){var e=document.getElementById(id);if(e)e.textContent=pad([d,h,m,s][i]);});
   if(wrap){wrap.classList.remove('cd-urge-0','cd-urge-1','cd-urge-2','cd-urge-3');
@@ -1233,7 +1267,14 @@ function rSR(){
   }).join('');
   document.getElementById('PF').style.width=(cur/4*100)+'%';
 }
-function go(n){cur=n;rSR();render();window.scrollTo({top:0,behavior:'smooth'});
+function go(n){
+  // Después de terminado el contador, la pestaña 5 solo es accesible con registro existente
+  if(n===4 && !pronosticoAbierto() && !fd.yaRegistrado){
+    const pe=document.getElementById('PE');
+    if(pe){pe.style.display='block';pe.textContent='El contador terminó. Solo puedes ver la pantalla final si ya tienes un registro.';}
+    return;
+  }
+  cur=n;rSR();render();window.scrollTo({top:0,behavior:'smooth'});
   // ── Guardar en Supabase al confirmar (paso 5) ──────────────────────────
   if(n===4 && fd.emp && !fd.yaRegistrado){
     var payload={
@@ -1401,12 +1442,11 @@ function buildTicket(e){
   </div></div>`;}
 
 function b1(){
-  if(mundialStarted())return;
   const inp=document.getElementById('FINP');if(!inp)return;
 
   inp.addEventListener('input',()=>{
     // Solo resetear estado visualmente sin destruir el campo
-    if(lk==='ok'||lk==='notfound'||lk==='invalid'){
+    if(lk==='ok'||lk==='notfound'||lk==='invalid'||lk==='closed'){
       lk='idle';fd.emp=null;fd.cod='';
       inp.className='';
       const hm=document.getElementById('HM');
@@ -1493,17 +1533,26 @@ function doLK(){
         .then(function(reg){
           inp.disabled=false;
           if(reg.ok && reg.data && reg.data.length){
-            // ✅ YA REGISTRADO → cargar y saltar directo a pantalla final
+            // ✅ YA REGISTRADO → si el contador sigue activo va a Pronóstico; si terminó va a Listo
             cargarRegistroExistente(reg.data[0]);
           } else {
-            // Nuevo → flujo normal de inscripción
-            lk='ok'; render();
+            if(!pronosticoAbierto()){
+              // Contador terminado y sin registro previo: no puede ingresar datos nuevos
+              lk='closed'; fd.emp=null; render();
+            } else {
+              // Nuevo → flujo normal de inscripción
+              lk='ok'; render();
+            }
           }
         })
         .catch(function(){
-          // Si falla la consulta de registros, continuar flujo normal
           inp.disabled=false;
-          lk='ok'; render();
+          if(!pronosticoAbierto()){
+            lk='closed'; fd.emp=null; render();
+          } else {
+            // Si falla la consulta de registros antes del cierre, continuar flujo normal
+            lk='ok'; render();
+          }
         });
     })
     .catch(function(err){
@@ -1549,9 +1598,9 @@ function cargarRegistroExistente(r){
   fd.fechaRegistro = r.fecha_registro || null;
 
   lk = 'ok';
-  cur = 4;   // Paso 5 = pantalla final
+  cur = pronosticoAbierto() ? 3 : 4;   // Antes del cierre: Pronóstico. Después del cierre: Listo.
   rSR();
-  render();  // Renderiza P5() con datos cargados
+  render();
   window.scrollTo({top:0, behavior:'smooth'});
 }
 
@@ -1559,24 +1608,17 @@ function cargarRegistroExistente(r){
 let pendingQuiz={qi:null,oi:null};
 
 function P1(){
-  if(checkAndShowMundial()){
-    return`<div class="fb" style="align-items:center;text-align:center;padding:40px 20px;gap:16px;position:relative;overflow:hidden"><div style="font-size:120px;opacity:0.07;position:absolute;bottom:-16px;right:-10px;pointer-events:none;user-select:none;line-height:1;z-index:0">⚽</div>
-      
-      <div style="font-size:20px;font-weight:900;color:var(--red)">El período de inscripción ha cerrado</div>
-      <div style="font-size:14px;color:var(--mid);font-weight:600;line-height:1.6">El Mundial FIFA 2026 ya comenzó el 11 de junio.<br>Las inscripciones están cerradas.</div>
-      
-    </div>`;
-  }
   const e=fd.emp;
   let hm='',hc='ht',hi='inf';
   if(lk==='notfound'){hm='Código no encontrado. Verifica el número principal en el sistema EB (no el código ADE…).';hc='ht e';hi='al';}
   else if(lk==='invalid'){hm='Solo dígitos, entre 3 y 6 caracteres. Ejemplo: 4276';hc='ht e';hi='al';}
   else if(lk==='loading'){hm='Verificando en base de datos Supabase…';}
+  else if(lk==='closed'){hm='El contador terminó. Solo quienes ya tienen un registro pueden ingresar a la pestaña Listo.';hc='ht e';hi='al';}
   else if(lk==='ok'){hm='Colaborador encontrado. ¿Eres tú? Confirma y continúa.';hc='ht o';hi='ok';}
-  else hm='';
+  else hm=pronosticoAbierto()?'':'Ingresa tu código para consultar si ya tienes un registro. Las nuevas inscripciones están cerradas.';
   const btnLabel = lk==='loading'
     ? `<span style="display:flex;align-items:center;gap:8px;justify-content:center"><svg style="width:16px;height:16px;animation:spin 1s linear infinite" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity=".25"/><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/></svg>Verificando…</span>`
-    : e ? `${ico('chk')} Sí, soy yo — Continuar` : `${ico('srch')} Buscar en sistema EB`;
+    : lk==='closed' ? `${ico('al')} Inscripciones cerradas` : e ? `${ico('chk')} Sí, soy yo — Continuar` : `${ico('srch')} Buscar en sistema EB`;
   return band(1,'Identifícate','','⚽')+`
   <div class="fb">
     <div class="ib">${ico('db')}<span>Ingresa tu <strong>código de empleado</strong></span></div>
@@ -1589,7 +1631,7 @@ function P1(){
     </div>
     ${e?buildTicket(e):''}
     ${e?`<div class="ib ok3">${ico('ok')}<span>¿Son tus datos? Si hay un error contacta a <strong>Talento Humano</strong> antes de continuar.</span></div>`:''}
-    <button class="btn ${e?'bm':lk==='loading'?'bdk':'bdk'}" id="BLK" ${lk==='loading'?'disabled':''}>${btnLabel}</button>
+    <button class="btn ${e?'bm':lk==='loading'?'bdk':'bdk'}" id="BLK" ${lk==='loading'||lk==='closed'?'disabled':''}>${btnLabel}</button>
   </div>`;}
 
 function b1(){
@@ -1598,7 +1640,7 @@ function b1(){
 
   inp.addEventListener('input',()=>{
     // Solo resetear estado visualmente sin destruir el campo
-    if(lk==='ok'||lk==='notfound'||lk==='invalid'){
+    if(lk==='ok'||lk==='notfound'||lk==='invalid'||lk==='closed'){
       lk='idle';fd.emp=null;fd.cod='';
       inp.className='';
       const hm=document.getElementById('HM');
@@ -1753,6 +1795,8 @@ function b3(){
 
 /* ── P4: PRONÓSTICO ── */
 function P4(){
+  const pronosticoCerrado=!pronosticoAbierto();
+  const dis=pronosticoCerrado?' disabled':'';
   const PS=[
     {n:'1°',l:'Campeón',f:'p1',i:0,s:'Goles en la Final'},
     {n:'2°',l:'Subcampeón',f:'p2',i:1,s:'Goles en la Final'},
@@ -1766,18 +1810,18 @@ function P4(){
     <div class="pc" id="PC${p.i}">
       <div class="pch"><div class="pcn">${p.n}</div><div><div class="pcl">${p.l}</div><div class="pcs">${p.s}</div></div></div>
       <div class="pcb">
-        <select id="F${p.f}" style="font-size:14px">
+        <select id="F${p.f}" style="font-size:14px"${dis}>
           <option value="">Selecciona un país...</option>
           ${SL.map(s=>`<option value="${s.n}" ${fd[p.f]===s.n?'selected':''}>${s.f} ${s.n}</option>`).join('')}
         </select>
         <div>
           <div class="ml">Goles pronosticados</div>
-          <input type="number" id="FG${p.i}" min="0" step="1" max="20" value="${fd.g[p.i]>0?fd.g[p.i]:''}" placeholder="0" style="text-align:center">
+          <input type="number" id="FG${p.i}" min="0" step="1" max="20" value="${fd.g[p.i]>0?fd.g[p.i]:''}" placeholder="0" style="text-align:center"${dis}>
         </div>
       </div>
     </div>`).join('')}
-    <div id="PE" style="display:none;padding:11px 14px;background:var(--red-soft);border:2px solid rgba(227,6,19,.3);border-radius:10px;font-size:13px;color:var(--redd);font-weight:700"></div>
-    <button class="btn bm" id="BP">⚽ Enviar mi pronóstico</button>
+    <div id="PE" style="display:${pronosticoCerrado?'block':'none'};padding:11px 14px;background:var(--red-soft);border:2px solid rgba(227,6,19,.3);border-radius:10px;font-size:13px;color:var(--redd);font-weight:700">${pronosticoCerrado?'El contador terminó. Los pronósticos ya no pueden modificarse.':''}</div>
+    <button class="btn bm" id="BP"${dis}>⚽ Enviar mi pronóstico</button>
     <button class="btn bgh" id="BPB">← Volver</button>
   </div>`;}
 
@@ -1803,6 +1847,7 @@ function b4(){
     if(sel) sel.addEventListener('change',syncSelects);
   });
   syncSelects();
+  bloquearInputsPronostico();
 
   // Clear placeholder 0 on focus, restore if left empty
   [0,1,2,3].forEach(function(i){
@@ -1813,6 +1858,12 @@ function b4(){
   });
 
   document.getElementById('BP').addEventListener('click',()=>{
+    if(!pronosticoAbierto()){
+      const pe=document.getElementById('PE');
+      if(pe){pe.style.display='block';pe.textContent='El contador terminó. Los pronósticos ya no pueden modificarse.';}
+      bloquearInputsPronostico();
+      return;
+    }
     const vs=keys.map(k=>document.getElementById('F'+k).value);
     const gs=[0,1,2,3].map(i=>+document.getElementById('FG'+i).value||0);
     const pe=document.getElementById('PE');
@@ -1839,6 +1890,43 @@ function b4(){
     pe.style.display='none';
     [fd.p1,fd.p2,fd.p3,fd.p4]=vs;
     fd.g=gs;
+
+    // Registro existente: guardar pronóstico vía RPC sin tocar salario emocional y luego ir a Listo
+    if(fd.yaRegistrado && pronosticoAbierto()){
+      pe.style.display='block';
+      pe.style.color='var(--ok)';
+      pe.style.background='var(--okbg)';
+      pe.style.borderColor='rgba(11,122,59,.25)';
+      pe.textContent='Guardando actualización de tu pronóstico…';
+
+      supaRpc('actualizar_pronostico_pmundial', {
+        p_colaborador_codigo: fd.cod,
+        p_top4_1_pais: fd.p1||null,
+        p_top4_1_goles_local: fd.g?fd.g[0]||0:0,
+        p_top4_1_goles_visita: fd.g?fd.g[1]||0:0,
+        p_top4_2_pais: fd.p2||null,
+        p_top4_3_pais: fd.p3||null,
+        p_top4_3_goles_local: fd.g?fd.g[2]||0:0,
+        p_top4_3_goles_visita: fd.g?fd.g[3]||0:0,
+        p_top4_4_pais: fd.p4||null
+      })
+        .then(function(r){
+          if(r.error){
+            pe.style.color='var(--redd)';pe.style.background='var(--red-soft)';pe.style.borderColor='rgba(227,6,19,.3)';
+            const msg=(r.error&&(r.error.message||r.error.details||r.error.code))?(' Detalle: '+(r.error.message||r.error.details||r.error.code)):'';
+            pe.textContent='No se pudo actualizar el pronóstico.'+msg;
+          } else {
+            go(4); // Guardó correctamente: ir a pestaña 5 Listo
+          }
+        })
+        .catch(function(e){
+          console.error('Error actualizando pronóstico:', e);
+          pe.style.color='var(--redd)';pe.style.background='var(--red-soft)';pe.style.borderColor='rgba(227,6,19,.3)';
+          pe.textContent='Sin conexión. No se pudo actualizar el pronóstico.';
+        });
+      return;
+    }
+
     go(4);
   });
   document.getElementById('BPB').addEventListener('click',()=>go(2));
@@ -2014,7 +2102,7 @@ initSlider();
 rSR();
 render();
 
-var PAISES=[['🇲🇽','Mexico'],['🇧🇷','Brasil'],['🇦🇷','Argentina'],['🇩🇪','Alemania'],['🇫🇷','Francia'],['🇪🇸','España'],['🇵🇹','Portugal'],['🇳🇱','P.Bajos'],['🇺🇾','Uruguay'],['🇨🇴','Colombia'],['🇪🇨','Ecuador'],['🇺🇸','EE.UU.'],['🇨🇦','Canada'],['🇯🇵','Japon'],['🇰🇷','Corea del Sur'],['🇲🇦','Marruecos'],['🇸🇳','Senegal'],['🇳🇬','Nigeria'],['🇧🇪','Belgica'],['🇨🇭','Suiza'],['🇵🇱','Polonia'],['🇦🇺','Australia'],['🇸🇦','Arabia Saudita'],['🇷🇸','Serbia'],['🇭🇷','Croacia'],['🇹🇷','Turquia'],['🇨🇱','Chile'],['🇵🇾','Paraguay'],['🇵🇪','Peru'],['🇧🇴','Bolivia'],['🇨🇷','Costa Rica'],['🇿🇦','Sudafrica'],['🇬🇭','Ghana'],['🇩🇿','Argelia'],['🇶🇦','Qatar'],['🇦🇹','Austria'],['🇧🇦','Bosnia'],['🇷🇴','Rumania'],['🇮🇷','Iran'],['🇹🇳','Tunez'],['🇯🇲','Jamaica'],['🇭🇳','Honduras'],['🇵🇦','Panama'],['🇺🇦','Ucrania']];
+var PAISES=SL.map(function(s){return [s.f,s.n];});
 var _pcRAF=null;
 function startSparkles(){var layer=document.getElementById('SPARK_LAYER');if(!layer)return;layer.innerHTML='';var cols=['#FFD100','#FFE566','#fff','#FF6B6B','#22c55e','#FF9A3C','#00D4FF','#FF69B4'],stars=['✦','✧','★'];for(var i=0;i<28;i++){var el=document.createElement('div'),isStar=Math.random()<.45;el.className=isStar?'star-sp':'spark';if(isStar){el.textContent=stars[Math.floor(Math.random()*stars.length)];el.style.fontSize=(10+Math.random()*10)+'px';el.style.color=cols[Math.floor(Math.random()*cols.length)];}else{var sz=(3+Math.random()*7)+'px';el.style.width=sz;el.style.height=sz;el.style.background=cols[Math.floor(Math.random()*cols.length)];}el.style.left=(2+Math.random()*96)+'%';el.style.top=(2+Math.random()*96)+'%';el.style.animationDelay=(Math.random()*2.5)+'s';el.style.animationDuration=(.7+Math.random()*1.8)+'s';layer.appendChild(el);};}
 function startPodioConfetti(){var canvas=document.getElementById('PODIO_CCV');if(!canvas)return;if(_pcRAF)cancelAnimationFrame(_pcRAF);var wrap=canvas.closest('.podio-p5-wrap')||canvas.parentElement;var W=wrap.offsetWidth||380,H=wrap.offsetHeight||260;canvas.width=W;canvas.height=H;var ctx=canvas.getContext('2d');var COLS=['#FFD100','#FFE566','#00CFFF','#E30613','#fff','#22c55e','#FF9A3C','#FF69B4'];var parts=[];for(var i=0;i<80;i++)parts.push({x:Math.random()*W,y:-8-Math.random()*H*.5,w:3+Math.random()*7,h:2+Math.random()*4,rot:Math.random()*Math.PI*2,dr:(Math.random()-.5)*.12,vx:(Math.random()-.5)*1.8,vy:.6+Math.random()*2.2,col:COLS[Math.floor(Math.random()*COLS.length)],alpha:1,shape:Math.random()<.3?'circle':'rect'});function frame(){ctx.clearRect(0,0,W,H);parts.forEach(function(p,idx){p.x+=p.vx;p.y+=p.vy;p.rot+=p.dr;p.vy+=.025;if(p.y>H+10)parts[idx]={x:Math.random()*W,y:-8,w:3+Math.random()*7,h:2+Math.random()*4,rot:Math.random()*Math.PI*2,dr:(Math.random()-.5)*.12,vx:(Math.random()-.5)*1.8,vy:.6+Math.random()*2.2,col:COLS[Math.floor(Math.random()*COLS.length)],alpha:1,shape:Math.random()<.3?'circle':'rect'};ctx.save();ctx.globalAlpha=p.alpha;ctx.fillStyle=p.col;ctx.translate(p.x,p.y);ctx.rotate(p.rot);if(p.shape==='circle'){ctx.beginPath();ctx.arc(0,0,p.w/2,0,Math.PI*2);ctx.fill();}else ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();});_pcRAF=requestAnimationFrame(frame);}frame();}
@@ -2040,7 +2128,30 @@ function positionCopa(){
     wrap.style.display='block';
   });
 }
-function podioInit(){var pool=PAISES.filter(function(p){return p[1]!=='Ecuador';}).sort(function(){return Math.random()-.5;});[1,2,3,4].forEach(function(s,i){var el=document.getElementById('PF'+s),ne=document.getElementById('PN'+s),v=i===0?['🇪🇨','Ecuador']:pool[i-1];if(el){el.textContent=v[0];el.classList.add('flag-in');}if(ne)ne.textContent=v[1];});var tick=0;setInterval(function(){var slot=(tick%4)+1,cur=[1,2,3,4].map(function(s){var n=document.getElementById('PN'+s);return n?n.textContent:'';}),avail=PAISES.filter(function(p){return cur.indexOf(p[1])<0;}),pick;if(slot===1&&Math.random()<.62)pick=['🇪🇨','Ecuador'];else pick=avail[Math.floor(Math.random()*avail.length)];var fEl=document.getElementById('PF'+slot),nEl=document.getElementById('PN'+slot);if(!fEl||!pick)return;fEl.classList.remove('flag-in');fEl.classList.add('flag-out');setTimeout(function(){fEl.textContent=pick[0];if(nEl)nEl.textContent=pick[1];fEl.classList.remove('flag-out');fEl.classList.add('flag-in');if(slot===1){fEl.style.filter='drop-shadow(0 0 14px #FFD100)';setTimeout(function(){fEl.style.filter='';},900);}},260);tick++;},2500);}
+function podioInit(){
+  var pool=PAISES.slice().sort(function(){return Math.random()-.5;}).slice(0,4);
+  [1,2,3,4].forEach(function(s,i){
+    var el=document.getElementById('PF'+s),ne=document.getElementById('PN'+s),v=pool[i]||['🏳','—'];
+    if(el){el.textContent=v[0];el.classList.add('flag-in');}
+    if(ne)ne.textContent=v[1];
+  });
+  var tick=0;
+  setInterval(function(){
+    var slot=(tick%4)+1;
+    var cur=[1,2,3,4].map(function(s){var n=document.getElementById('PN'+s);return n?n.textContent:'';});
+    var avail=PAISES.filter(function(p){return cur.indexOf(p[1])<0;});
+    var pick=avail[Math.floor(Math.random()*avail.length)]||PAISES[Math.floor(Math.random()*PAISES.length)]||['🏳','—'];
+    var fEl=document.getElementById('PF'+slot),nEl=document.getElementById('PN'+slot);
+    if(!fEl||!pick)return;
+    fEl.classList.remove('flag-in');fEl.classList.add('flag-out');
+    setTimeout(function(){
+      fEl.textContent=pick[0];
+      if(nEl)nEl.textContent=pick[1];
+      fEl.classList.remove('flag-out');fEl.classList.add('flag-in');
+    },260);
+    tick++;
+  },2500);
+}
 // Hook into go() for P4→P5 confetti and podio visibility
 var _origGo=typeof go==='function'?go:null;
 if(typeof go==='function'){
