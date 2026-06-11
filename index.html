@@ -1199,9 +1199,24 @@ function goSlide(i){
 }
 function autoSlide(){clearInterval(slideTimer);slideTimer=setInterval(()=>goSlide((slideIdx+1)%slideTot),4200);}
 /* ── MUNDIAL & COUNTDOWN ── */
-const MUNDIAL=new Date('2026-06-11T16:00:00-05:00');
+const MUNDIAL=new Date('2026-06-11T14:00:00-05:00');
 const mundialStarted=()=>new Date()>=MUNDIAL;
-const pronosticoAbierto=()=>!mundialStarted();
+
+/* Cierre de registro: medianoche Ecuador (UTC-5) del día de hoy.
+   El botón "Buscar en sistema EB" permanece activo hasta ese momento,
+   incluso si el contador del Mundial ya terminó. */
+const CIERRE_REGISTRO=(function(){
+  var ahora=new Date();
+  // Fecha de hoy en zona Ecuador (UTC-5): restamos el offset para tener la medianoche local
+  var offsetMs=5*60*60*1000; // UTC-5
+  var ahoraEC=new Date(ahora.getTime()-offsetMs);
+  var anio=ahoraEC.getUTCFullYear(),mes=ahoraEC.getUTCMonth(),dia=ahoraEC.getUTCDate();
+  // Medianoche Ecuador = el siguiente día a las 00:00 EC = 05:00 UTC
+  return new Date(Date.UTC(anio,mes,dia+1,5,0,0));
+})();
+
+const registroCerrado=()=>new Date()>=CIERRE_REGISTRO;
+const pronosticoAbierto=()=>!registroCerrado();
 function bloquearInputsPronostico(){
   const cerrado=!pronosticoAbierto();
   ['p1','p2','p3','p4'].forEach(k=>{const el=document.getElementById('F'+k);if(el)el.disabled=cerrado;});
@@ -1209,7 +1224,7 @@ function bloquearInputsPronostico(){
   const btn=document.getElementById('BP');
   if(btn)btn.disabled=cerrado;
   const pe=document.getElementById('PE');
-  if(cerrado&&pe){pe.style.display='block';pe.textContent='El contador terminó. Los pronósticos ya no pueden modificarse.';}
+  if(cerrado&&pe){pe.style.display='block';pe.textContent='El registro cerró a medianoche. Los pronósticos ya no pueden modificarse.';}
 }
 const pad=n=>String(Math.max(0,n)).padStart(2,'0');
 
@@ -1271,7 +1286,7 @@ function go(n){
   // Después de terminado el contador, la pestaña 5 solo es accesible con registro existente
   if(n===4 && !pronosticoAbierto() && !fd.yaRegistrado){
     const pe=document.getElementById('PE');
-    if(pe){pe.style.display='block';pe.textContent='El contador terminó. Solo puedes ver la pantalla final si ya tienes un registro.';}
+    if(pe){pe.style.display='block';pe.textContent='El registro cerró a medianoche. Solo puedes ver la pantalla final si ya tienes un registro.';}
     return;
   }
   cur=n;rSR();render();window.scrollTo({top:0,behavior:'smooth'});
@@ -1613,9 +1628,9 @@ function P1(){
   if(lk==='notfound'){hm='Código no encontrado. Verifica el número principal en el sistema EB (no el código ADE…).';hc='ht e';hi='al';}
   else if(lk==='invalid'){hm='Solo dígitos, entre 3 y 6 caracteres. Ejemplo: 4276';hc='ht e';hi='al';}
   else if(lk==='loading'){hm='Verificando en base de datos Supabase…';}
-  else if(lk==='closed'){hm='El contador terminó. Solo quienes ya tienen un registro pueden ingresar a la pestaña Listo.';hc='ht e';hi='al';}
+  else if(lk==='closed'){hm='El registro cerró a medianoche. Solo quienes ya tienen un registro pueden ingresar a la pestaña Listo.';hc='ht e';hi='al';}
   else if(lk==='ok'){hm='Colaborador encontrado. ¿Eres tú? Confirma y continúa.';hc='ht o';hi='ok';}
-  else hm=pronosticoAbierto()?'':'Ingresa tu código para consultar si ya tienes un registro. Las nuevas inscripciones están cerradas.';
+  else hm=pronosticoAbierto()?'':'Ingresa tu código para consultar si ya tienes un registro. Las nuevas inscripciones están cerradas (medianoche Ecuador).';
   const btnLabel = lk==='loading'
     ? `<span style="display:flex;align-items:center;gap:8px;justify-content:center"><svg style="width:16px;height:16px;animation:spin 1s linear infinite" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity=".25"/><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/></svg>Verificando…</span>`
     : lk==='closed' ? `${ico('al')} Inscripciones cerradas` : e ? `${ico('chk')} Sí, soy yo — Continuar` : `${ico('srch')} Buscar en sistema EB`;
@@ -1635,7 +1650,6 @@ function P1(){
   </div>`;}
 
 function b1(){
-  if(mundialStarted())return;
   const inp=document.getElementById('FINP');if(!inp)return;
 
   inp.addEventListener('input',()=>{
@@ -1820,7 +1834,7 @@ function P4(){
         </div>
       </div>
     </div>`).join('')}
-    <div id="PE" style="display:${pronosticoCerrado?'block':'none'};padding:11px 14px;background:var(--red-soft);border:2px solid rgba(227,6,19,.3);border-radius:10px;font-size:13px;color:var(--redd);font-weight:700">${pronosticoCerrado?'El contador terminó. Los pronósticos ya no pueden modificarse.':''}</div>
+    <div id="PE" style="display:${pronosticoCerrado?'block':'none'};padding:11px 14px;background:var(--red-soft);border:2px solid rgba(227,6,19,.3);border-radius:10px;font-size:13px;color:var(--redd);font-weight:700">${pronosticoCerrado?'El registro cerró a medianoche. Los pronósticos ya no pueden modificarse.':''}</div>
     <button class="btn bm" id="BP"${dis}>⚽ Enviar mi pronóstico</button>
     <button class="btn bgh" id="BPB">← Volver</button>
   </div>`;}
@@ -1860,7 +1874,7 @@ function b4(){
   document.getElementById('BP').addEventListener('click',()=>{
     if(!pronosticoAbierto()){
       const pe=document.getElementById('PE');
-      if(pe){pe.style.display='block';pe.textContent='El contador terminó. Los pronósticos ya no pueden modificarse.';}
+      if(pe){pe.style.display='block';pe.textContent='El registro cerró a medianoche. Los pronósticos ya no pueden modificarse.';}
       bloquearInputsPronostico();
       return;
     }
@@ -1929,7 +1943,8 @@ function b4(){
 
     go(4);
   });
-  document.getElementById('BPB').addEventListener('click',()=>go(2));
+  const bpb=document.getElementById('BPB');
+  if(bpb&&!fd.yaRegistrado) bpb.addEventListener('click',()=>go(2));
 }
 
 /* ── P5: ÉXITO ── */
