@@ -1,0 +1,1693 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Back Office · Polla Mundialista 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0D0F14;--bg:#F0F2F5;--card:#FFFFFF;--gold:#FFD100;
+  --red:#E30613;--green:#0B7A3B;--muted:#6B7280;--brd:#E5E7EB;--brd2:#D1D5DB;
+  --yellow-soft:#FFFBEA;--green-soft:#ECFDF5;--red-soft:#FEF2F2;
+  --milagro:#1D4ED8;--aloag:#7C3AED;--otras:#B45309;
+  --bonus:#92400E;--bonus-bg:#FEF3C7;
+  --quiz:#5B21B6;--quiz-bg:#EDE9FE;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;}
+
+/* ── LOGIN ── */
+#LOGIN_SCREEN{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--ink);}
+.login-box{background:var(--card);border-radius:16px;padding:40px 36px;width:100%;max-width:380px;box-shadow:0 24px 64px rgba(0,0,0,.4);}
+.login-badge{display:flex;align-items:center;gap:10px;margin-bottom:28px;}
+.login-badge-icon{width:40px;height:40px;background:var(--gold);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;}
+.login-badge-text{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:17px;line-height:1.2;}
+.login-badge-sub{font-size:11px;color:var(--muted);font-weight:600;letter-spacing:1px;text-transform:uppercase;}
+.login-box h2{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:26px;margin-bottom:6px;}
+.login-box p{color:var(--muted);font-size:14px;margin-bottom:24px;}
+.fg{margin-bottom:16px;}
+.fg label{display:block;font-size:12px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.fg input{width:100%;padding:11px 14px;border:1.5px solid var(--brd2);border-radius:10px;font-size:15px;font-family:inherit;transition:border-color .2s;}
+.fg input:focus{outline:none;border-color:var(--gold);}
+.btn-login{width:100%;padding:13px;background:var(--ink);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;font-family:'Barlow Condensed',sans-serif;letter-spacing:.5px;cursor:pointer;margin-top:4px;transition:opacity .2s;}
+.btn-login:hover{opacity:.85;}
+.login-err{color:var(--red);font-size:13px;font-weight:600;margin-top:12px;display:none;}
+
+/* ── APP ── */
+#APP{display:none;}
+.topbar{background:var(--ink);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100;}
+.topbar-brand{display:flex;align-items:center;gap:10px;}
+.topbar-icon{width:32px;height:32px;background:var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;}
+.topbar-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:18px;color:#fff;letter-spacing:.5px;}
+.topbar-pill{background:rgba(255,209,0,.15);color:var(--gold);border:1px solid rgba(255,209,0,.3);padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+.btn-logout{background:rgba(255,255,255,.1);color:#fff;border:none;padding:6px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;}
+.btn-logout:hover{background:rgba(255,255,255,.2);}
+.main-content{max-width:1400px;margin:0 auto;padding:28px 20px 60px;}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:4px;margin-bottom:24px;background:var(--card);padding:5px;border-radius:12px;border:1.5px solid var(--brd);width:fit-content;}
+.tab-btn{padding:8px 20px;border:none;border-radius:8px;background:transparent;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:.5px;color:var(--muted);transition:all .2s;}
+.tab-btn.active{background:var(--ink);color:#fff;}
+.tab-btn:hover:not(.active){background:var(--bg);color:var(--ink);}
+.panel{display:none;} .panel.active{display:block;}
+
+/* ── RESULTS FORM ── */
+.section-header{margin-bottom:20px;}
+.section-header h2{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:24px;margin-bottom:4px;}
+.section-header p{color:var(--muted);font-size:14px;}
+.results-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;}
+@media(max-width:640px){.results-grid{grid-template-columns:1fr;}}
+.result-card{background:var(--card);border:1.5px solid var(--brd);border-radius:14px;padding:20px;}
+.result-card-header{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.pos-badge{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:16px;color:#fff;flex-shrink:0;}
+.pos-1{background:linear-gradient(135deg,#C8980A,#6B4F00);}
+.pos-2{background:linear-gradient(135deg,#707880,#3A3D44);}
+.pos-3{background:linear-gradient(135deg,#8B5E2A,#4A2E10);}
+.pos-4{background:linear-gradient(135deg,#374151,#1A202C);}
+.result-card-label{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:16px;}
+.result-card-sub{font-size:12px;color:var(--muted);}
+.country-select{width:100%;padding:10px 12px;border:1.5px solid var(--brd2);border-radius:10px;font-size:14px;font-family:inherit;background:#fff;cursor:pointer;margin-bottom:12px;}
+.country-select:focus{outline:none;border-color:var(--gold);}
+.goals-row{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;}
+.goals-label{font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:4px;display:block;}
+.goal-input{width:100%;padding:8px;text-align:center;border:1.5px solid var(--brd2);border-radius:10px;font-size:22px;font-weight:900;font-family:'Barlow Condensed',sans-serif;}
+.goal-input:focus{outline:none;border-color:var(--gold);}
+.goals-vs{text-align:center;font-size:12px;font-weight:700;color:var(--muted);padding-top:20px;}
+.goals-note{font-size:11px;color:var(--muted);margin-top:8px;text-align:center;}
+.btn-save{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;background:var(--green);color:#fff;border:none;border-radius:12px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:16px;cursor:pointer;transition:opacity .2s;margin-top:8px;}
+.btn-save:hover{opacity:.88;}
+.save-status{margin-top:12px;padding:11px 14px;border-radius:10px;font-size:13px;font-weight:700;display:none;}
+.save-status.ok{background:var(--green-soft);color:var(--green);display:block;}
+.save-status.err{background:var(--red-soft);color:var(--red);display:block;}
+.current-results{background:var(--yellow-soft);border:1.5px solid rgba(255,209,0,.4);border-radius:14px;padding:18px 20px;margin-bottom:24px;}
+.current-results h3{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:16px;margin-bottom:12px;}
+.results-pills{display:flex;flex-wrap:wrap;gap:8px;}
+.result-pill{display:flex;align-items:center;gap:6px;background:#fff;border:1.5px solid rgba(255,209,0,.4);padding:5px 12px;border-radius:20px;font-size:13px;}
+.result-pill-pos{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:11px;color:var(--muted);text-transform:uppercase;}
+.result-pill-val{font-weight:700;}
+.result-pill-score{font-size:11px;color:var(--muted);font-weight:600;}
+
+/* ── RANKING ── */
+.btn-calc{display:flex;align-items:center;gap:8px;padding:10px 20px;background:var(--ink);color:#fff;border:none;border-radius:10px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;cursor:pointer;transition:opacity .2s;}
+.btn-calc:hover{opacity:.85;}
+.btn-calc:disabled{opacity:.4;cursor:default;}
+.regional-tabs{display:flex;gap:4px;flex-wrap:wrap;}
+.rtab{padding:7px 16px;border-radius:8px;background:var(--card);border:1.5px solid var(--brd);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:all .2s;color:var(--muted);}
+.rtab.a-todas{background:var(--ink);border-color:var(--ink);color:#fff;}
+.rtab.a-milagro{background:#EFF6FF;border-color:var(--milagro);color:var(--milagro);}
+.rtab.a-aloag{background:#F5F3FF;border-color:var(--aloag);color:var(--aloag);}
+.rtab.a-otras{background:#FFFBEB;border-color:var(--otras);color:var(--otras);}
+.ranking-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+@media(max-width:640px){.ranking-stats{grid-template-columns:repeat(2,1fr);}}
+.stat-card{background:var(--card);border:1.5px solid var(--brd);border-radius:12px;padding:14px 16px;}
+.stat-card-val{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:28px;line-height:1;}
+.stat-card-lbl{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.8px;text-transform:uppercase;margin-top:4px;}
+
+/* ── RESULT BAR ── */
+.result-bar{background:var(--ink);color:#fff;border-radius:12px;padding:14px 20px;margin-bottom:16px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;}
+.result-bar-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.4);}
+.rbi{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.08);padding:5px 11px;border-radius:20px;}
+.rbi-pos{font-size:9px;font-weight:700;color:rgba(255,255,255,.4);letter-spacing:.8px;text-transform:uppercase;}
+.rbi-val{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:13px;}
+.rbi-score{font-size:10px;font-weight:600;color:var(--gold);}
+.rbi-sep{width:1px;height:20px;background:rgba(255,255,255,.15);}
+
+/* ── RANKING TABLE ── */
+.ranking-wrap{background:var(--card);border:1.5px solid var(--brd);border-radius:14px;overflow:hidden;}
+.ranking-scroll{overflow-x:auto;}
+.rk-table{width:100%;border-collapse:collapse;table-layout:fixed;}
+
+/* Group header */
+.rk-gth{padding:5px 10px;font-size:10px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;text-align:center;border-right:1px solid rgba(0,0,0,.06);}
+.rk-gth:last-child{border-right:none;}
+.gth-id{background:#F1F5F9;color:#64748B;}
+.gth-pos{background:#DCFCE7;color:#15803D;}
+.gth-fin{background:#FEF9C3;color:#92400E;}
+.gth-34{background:#FEF9C3;color:#92400E;}
+.gth-quiz{background:#EDE9FE;color:#6D28D9;}
+.gth-tot{background:#F1F5F9;color:#374151;}
+
+/* Col header */
+.rk-th{padding:7px 4px;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);text-align:center;background:#F8FAFC;border-bottom:1.5px solid var(--brd);border-right:1px solid var(--brd);overflow:hidden;}
+.rk-th:last-child{border-right:none;}
+.rk-th.al{text-align:left;padding-left:10px;}
+
+/* Data rows */
+.rk-row{border-bottom:1px solid #F1F5F9;cursor:pointer;transition:background .12s;}
+.rk-row:hover{background:#F8FAFC!important;}
+.rk-top1{background:#FFFBEA!important;}
+.rk-top3{background:#FFF7ED!important;}
+
+/* Expand */
+.rk-exp{display:none;}
+.rk-exp.open{display:table-row;}
+.rk-exp td{padding:0;border:none;}
+.rk-exp-inner{padding:16px;background:#F8FAFC;border-top:2px dashed #E2E8F0;}
+.exp-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.exp-card{background:#fff;border:1.5px solid var(--brd);border-radius:10px;padding:12px 14px;}
+.exp-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:12px;letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.exp-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid #F3F4F6;font-size:12px;gap:8px;}
+.exp-row:last-child{border-bottom:none;}
+.exp-lbl{color:var(--muted);flex-shrink:0;}
+.exp-val{font-weight:600;text-align:right;flex:1;}
+.exp-pts{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:13px;padding:1px 8px;border-radius:6px;flex-shrink:0;}
+.ep-ok{background:#DCFCE7;color:#15803D;}
+.ep-bon{background:#FEF3C7;color:#92400E;}
+.ep-quiz{background:#EDE9FE;color:#6D28D9;}
+.ep-miss{background:#F3F4F6;color:#9CA3AF;}
+
+/* Cell base */
+.rk-td{padding:0;vertical-align:middle;text-align:center;border-right:1px solid #F1F5F9;overflow:hidden;height:72px;}
+.rk-td:last-child{border-right:none;}
+.rk-td.al{text-align:left;padding-left:10px;}
+.rk-td.bl{border-left:2px solid var(--brd)!important;}
+
+/* Pos # */
+.td-pos{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:18px;color:#9CA3AF;}
+.td-pos.g1{color:#B8860B;}
+.td-pos.g2{color:#707880;}
+.td-pos.g3{color:#8B5E2A;}
+
+/* Chip */
+.chip{display:inline-flex;align-items:center;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;}
+.chip-m{background:#EFF6FF;color:var(--milagro);}
+.chip-a{background:#F5F3FF;color:var(--aloag);}
+.chip-o{background:#FFFBEB;color:var(--otras);}
+
+/* Country cell */
+.td-country{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;height:100%;padding:8px 4px;}
+.tc-flag{font-size:18px;line-height:1;}
+.tc-name{font-size:9px;color:var(--muted);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60px;}
+.tc-pts{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:12px;}
+.tc-pts.ok{color:#15803D;}
+.tc-pts.miss{color:#D1D5DB;}
+
+/* Score cell */
+/* Score cell — same visual rhythm as country cell */
+.td-score{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;height:100%;padding:8px 4px;}
+.ts-pred{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:20px;line-height:1;}
+.ts-pred.ok{color:#92400E;}
+.ts-pred.miss{color:#CBD5E1;}
+.ts-real{font-size:9px;color:#94A3B8;margin-top:1px;}
+.ts-pts{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:900;}
+.ts-pts.ok{color:#92400E;}
+.ts-pts.miss{color:#D1D5DB;}
+
+/* Result cell — same visual rhythm as country cell */
+.td-res{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;height:100%;padding:8px 4px;}
+.tr-icon{font-size:20px;line-height:1;}
+.tr-lbl{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:900;}
+.tr-lbl.ok{color:#92400E;}
+.tr-lbl.miss{color:#D1D5DB;}
+.tr-real{font-size:9px;color:#94A3B8;margin-top:1px;}
+.tr-pts{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:900;}
+.tr-pts.ok{color:#92400E;}
+.tr-pts.miss{color:#D1D5DB;}
+
+/* Quiz cell */
+.td-quiz{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;height:100%;padding:8px 4px;}
+.tq-circle{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:16px;}
+.tq-circle.ok{background:#EDE9FE;color:#6D28D9;}
+.tq-circle.miss{background:#F3F4F6;color:#D1D5DB;}
+.tq-try{font-size:9px;color:#94A3B8;margin-top:1px;}
+.tq-pts{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:12px;}
+.tq-pts.ok{color:#6D28D9;}
+.tq-pts.miss{color:#D1D5DB;}
+
+/* Total cell */
+.td-total{display:flex;flex-direction:column;align-items:center;}
+.tt-num{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:26px;color:#15803D;line-height:1;}
+.tt-sub{font-size:9px;color:#94A3B8;text-align:center;margin-top:2px;line-height:1.4;}
+
+/* No data */
+.no-data{text-align:center;padding:48px 20px;color:var(--muted);}
+.no-data-icon{font-size:40px;margin-bottom:12px;}
+.no-data h3{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:20px;margin-bottom:6px;color:var(--ink);}
+.no-data p{font-size:14px;}
+
+/* Legend */
+.score-legend{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;}
+.legend-item{display:flex;align-items:center;gap:6px;background:var(--card);border:1.5px solid var(--brd);padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;}
+.ldot{width:8px;height:8px;border-radius:50%;}
+.ldot-g{background:var(--green);}
+.ldot-b{background:#B45309;}
+.ldot-q{background:#6D28D9;}
+
+/* Spinner */
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* ══ SENTIMIENTOS ══ */
+/* Header band: dark, contains filters + KPIs */
+.sent-header-band{background:var(--ink);border-radius:14px;padding:16px 20px;margin-bottom:14px;}
+.sent-header-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px;}
+.sent-dl-btn{display:flex;align-items:center;gap:6px;padding:7px 14px;background:rgba(255,255,255,.1);color:#fff;border:1.5px solid rgba(255,255,255,.15);border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;cursor:pointer;margin-left:auto;transition:background .2s;}
+.sent-dl-btn:hover{background:rgba(255,255,255,.18);}
+/* KPI row inside dark band */
+.sent-kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-radius:10px;overflow:hidden;}
+.sent-kpi{padding:12px 16px;border-right:1px solid rgba(255,255,255,.08);}
+.sent-kpi:last-child{border-right:none;}
+.sent-kpi-val{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:26px;line-height:1;color:#fff;}
+.sent-kpi-lbl{font-size:10px;color:rgba(255,255,255,.5);font-weight:700;letter-spacing:.6px;text-transform:uppercase;margin-top:3px;}
+.sent-kpi-sub{font-size:11px;color:rgba(255,255,255,.35);margin-top:2px;}
+/* Main grid: 2 cols with start alignment */
+.sent-main-grid{display:grid;grid-template-columns:5fr 7fr;gap:14px;align-items:start;margin-bottom:14px;}
+.sent-left-col{display:flex;flex-direction:column;gap:14px;}
+.sent-right-col{}
+/* Cards */
+.sent-card{background:var(--card);border:1.5px solid var(--brd);border-radius:12px;padding:16px 18px;}
+.sent-words-card{margin-top:0;}
+.sent-card-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:15px;margin-bottom:12px;display:flex;align-items:center;gap:7px;color:var(--ink);}
+/* Participation */
+.part-bar{height:8px;border-radius:4px;overflow:hidden;display:flex;margin-bottom:4px;}
+.depth-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:10px 0 8px;}
+.depth-cell{background:#F8FAFC;border-radius:7px;padding:7px 4px;text-align:center;}
+.depth-val{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:18px;line-height:1;}
+.depth-lbl{font-size:9px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-top:2px;}
+.depth-sub{font-size:9px;color:#94A3B8;margin-top:1px;}
+.rh-box{background:#FFFBEB;border-left:3px solid #F59E0B;border-radius:0 6px 6px 0;padding:8px 11px;font-size:11px;line-height:1.5;color:#92400E;}
+/* Word cloud */
+.word-cloud{display:flex;flex-wrap:wrap;gap:5px;align-items:center;}
+.word-tag{display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border-radius:14px;cursor:default;transition:opacity .15s;}
+.word-tag:hover{opacity:.7;}
+.word-tag-w{font-weight:700;}
+.word-tag-n{font-size:9px;opacity:.55;}
+/* Tipo de solicitud */
+.tipo-block{border:1.5px solid #F1F5F9;border-radius:10px;overflow:hidden;margin-bottom:8px;}
+.tipo-block:last-child{margin-bottom:0;}
+.tipo-header{padding:10px 12px;}
+.tipo-ideas{padding:8px 12px 10px;background:#fff;}
+.tipo-idea-item{margin-bottom:8px;}
+.tipo-idea-item:last-child{margin-bottom:0;}
+.tipo-quote{font-size:11px;color:#374151;padding:4px 8px;border-radius:0 4px 4px 0;margin-bottom:3px;line-height:1.4;word-break:break-word;}
+</style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="LOGIN_SCREEN">
+  <div class="login-box">
+    <div class="login-badge">
+      <div class="login-badge-icon">⚽</div>
+      <div>
+        <div class="login-badge-text">Polla Mundialista 2026</div>
+        <div class="login-badge-sub">Back Office · Adelca TRD</div>
+      </div>
+    </div>
+    <h2>Acceso Administrativo</h2>
+    <p>Solo personal autorizado de TRD puede ingresar.</p>
+    <div class="fg">
+      <label>Código de acceso</label>
+      <input type="text" id="INP_CODE" placeholder="Ej: ABC1234" autocomplete="off" maxlength="7" style="letter-spacing:4px;font-size:20px;font-weight:700;text-align:center;text-transform:uppercase">
+    </div>
+    <button class="btn-login" onclick="doLogin()">Ingresar al sistema</button>
+    <div class="login-err" id="LOGIN_ERR">Código incorrecto. Intenta de nuevo.</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="APP">
+  <div class="topbar">
+    <div class="topbar-brand">
+      <div class="topbar-icon">⚽</div>
+      <div class="topbar-title">POLLA MUNDIALISTA 2026 · BACK OFFICE</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div class="topbar-pill">ADMIN</div>
+      <button class="btn-logout" onclick="doLogout()">Cerrar sesión</button>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('resultados',this)">🏆 Resultados Reales</button>
+      <button class="tab-btn" onclick="switchTab('ranking',this)">📊 Ranking</button>
+      <button class="tab-btn" onclick="switchTab('sentimientos',this)">💬 Salario Emocional</button>
+    </div>
+
+    <!-- ══ PANEL RESULTADOS ══ -->
+    <div class="panel active" id="panel-resultados">
+      <div class="section-header">
+        <h2>Ingresar Resultados del Mundial</h2>
+        <p>Define los 4 primeros lugares y los marcadores. Se guardan en Supabase y se usan para calcular el ranking.</p>
+      </div>
+      <div class="current-results" id="CURRENT_RESULTS" style="display:none">
+        <h3>✅ Resultados actualmente guardados</h3>
+        <div class="results-pills" id="RESULTS_PILLS"></div>
+      </div>
+      <div class="results-grid">
+        <div class="result-card">
+          <div class="result-card-header"><div class="pos-badge pos-1">1°</div><div><div class="result-card-label">Campeón del Mundial</div><div class="result-card-sub">4 puntos al acertar</div></div></div>
+          <select class="country-select" id="R_P1"><option value="">Selecciona el Campeón…</option></select>
+        </div>
+        <div class="result-card">
+          <div class="result-card-header"><div class="pos-badge pos-2">2°</div><div><div class="result-card-label">Subcampeón</div><div class="result-card-sub">3 puntos al acertar</div></div></div>
+          <select class="country-select" id="R_P2"><option value="">Selecciona el Subcampeón…</option></select>
+        </div>
+        <div class="result-card" style="grid-column:1/-1">
+          <div class="result-card-header"><div style="font-size:20px">⚽</div><div><div class="result-card-label">Marcador — Gran Final (1° vs 2°)</div><div class="result-card-sub">Bonus: +1pt gol local · +1pt gol visita · +1pt resultado (W/L/E)</div></div></div>
+          <div class="goals-row">
+            <div><span class="goals-label" id="LBL_P1">Campeón (local)</span><input type="text" inputmode="numeric" class="goal-input" id="R_G1L" value="0" autocomplete="off"></div>
+            <div class="goals-vs">vs</div>
+            <div><span class="goals-label" id="LBL_P2">Subcampeón (visita)</span><input type="text" inputmode="numeric" class="goal-input" id="R_G1V" value="0" autocomplete="off"></div>
+          </div>
+          <div class="goals-note">El 1° se considera local en el cálculo de bonus</div>
+        </div>
+        <div class="result-card">
+          <div class="result-card-header"><div class="pos-badge pos-3">3°</div><div><div class="result-card-label">Tercer lugar</div><div class="result-card-sub">2 puntos al acertar</div></div></div>
+          <select class="country-select" id="R_P3"><option value="">Selecciona el 3er lugar…</option></select>
+        </div>
+        <div class="result-card">
+          <div class="result-card-header"><div class="pos-badge pos-4">4°</div><div><div class="result-card-label">Cuarto lugar</div><div class="result-card-sub">1 punto al acertar</div></div></div>
+          <select class="country-select" id="R_P4"><option value="">Selecciona el 4to lugar…</option></select>
+        </div>
+        <div class="result-card" style="grid-column:1/-1">
+          <div class="result-card-header"><div style="font-size:20px">🥉</div><div><div class="result-card-label">Marcador — 3er/4to puesto (3° vs 4°)</div><div class="result-card-sub">Bonus: +1pt gol local · +1pt gol visita · +1pt resultado (W/L/E)</div></div></div>
+          <div class="goals-row">
+            <div><span class="goals-label" id="LBL_P3">3er lugar (local)</span><input type="text" inputmode="numeric" class="goal-input" id="R_G3L" value="0" autocomplete="off"></div>
+            <div class="goals-vs">vs</div>
+            <div><span class="goals-label" id="LBL_P4">4to lugar (visita)</span><input type="text" inputmode="numeric" class="goal-input" id="R_G3V" value="0" autocomplete="off"></div>
+          </div>
+          <div class="goals-note">El 3° se considera local en el cálculo de bonus</div>
+        </div>
+      </div>
+      <button class="btn-save" onclick="saveResults()"><span id="BTN_SAVE_TXT">💾 Guardar resultados en Supabase</span></button>
+      <div class="save-status" id="SAVE_STATUS"></div>
+    </div>
+
+    <!-- ══ PANEL RANKING ══ -->
+    <div class="panel" id="panel-ranking">
+      <div class="section-header">
+        <h2>Ranking de Participantes</h2>
+        <p>Puntos de pronóstico + bonus de goles + quiz institucional.</p>
+      </div>
+
+      <div class="score-legend">
+        <div class="legend-item"><div class="ldot ldot-g"></div>Posición: 1°=4 · 2°=3 · 3°=2 · 4°=1 pt</div>
+        <div class="legend-item"><div class="ldot ldot-b"></div>Bonus: +1 gol local · +1 gol visita · +1 resultado — por partido</div>
+        <div class="legend-item"><div class="ldot ldot-q"></div>Quiz: 1er intento=3 · 2do=2 · 3er=1 · bloqueado=0 pt</div>
+      </div>
+
+      <div style="display:flex;gap:12px;align-items:center;margin-bottom:16px;flex-wrap:wrap;">
+        <button class="btn-calc" id="BTN_CALC" onclick="calcRanking()"><span id="BTN_CALC_TXT">⚡ Calcular ranking</span></button>
+        <span id="CALC_NOTE" style="font-size:13px;color:var(--muted);"></span>
+      </div>
+
+      <div class="regional-tabs" style="margin-bottom:20px;">
+        <button class="rtab a-todas" onclick="filterReg('todas',this)">🌎 Todas</button>
+        <button class="rtab" onclick="filterReg('Milagro',this)">🏭 Milagro</button>
+        <button class="rtab" onclick="filterReg('Aloag',this)">🏔 Aloag</button>
+        <button class="rtab" onclick="filterReg('otras',this)">📍 Otras Regionales</button>
+      </div>
+
+      <div class="ranking-stats" id="RANKING_STATS" style="display:none">
+        <div class="stat-card"><div class="stat-card-val" id="ST_TOT">—</div><div class="stat-card-lbl">Participantes</div></div>
+        <div class="stat-card"><div class="stat-card-val" id="ST_MAX">—</div><div class="stat-card-lbl">Puntaje máximo</div></div>
+        <div class="stat-card"><div class="stat-card-val" id="ST_AVG">—</div><div class="stat-card-lbl">Promedio</div></div>
+        <div class="stat-card"><div class="stat-card-val" id="ST_QOK">—</div><div class="stat-card-lbl">Quiz perfecto (6pts)</div></div>
+      </div>
+
+      <div id="RESULT_BAR" style="display:none" class="result-bar"></div>
+
+      <div class="ranking-wrap">
+        <div class="ranking-scroll">
+          <table class="rk-table" id="RK_TABLE">
+            <thead>
+              <tr id="RK_GROUPS"></tr>
+              <tr id="RK_HEAD"></tr>
+            </thead>
+            <tbody id="RANKING_BODY">
+              <tr><td colspan="16">
+                <div class="no-data"><div class="no-data-icon">📊</div><h3>Sin datos aún</h3><p>Ingresa los resultados del Mundial y presiona "Calcular ranking".</p></div>
+              </td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div><!-- /panel ranking -->
+
+    <!-- ══ PANEL SENTIMIENTOS ══ -->
+    <div class="panel" id="panel-sentimientos">
+      <div class="section-header">
+        <h2>Análisis de Salario Emocional</h2>
+        <p>Basado en las respuestas libres de los colaboradores. Filtra por regional y descarga el reporte completo.</p>
+      </div>
+
+      <!-- Header bar: filtros + descarga + KPIs todo en una banda oscura -->
+      <div class="sent-header-band">
+        <div class="sent-header-top">
+          <div class="regional-tabs" id="SENT_REG_TABS">
+            <button class="rtab a-todas" onclick="filterSent('todas',this)">🌎 Adelca Total</button>
+            <button class="rtab" onclick="filterSent('Milagro',this)">🏭 Milagro</button>
+            <button class="rtab" onclick="filterSent('Aloag',this)">🏔 Aloag</button>
+            <button class="rtab" onclick="filterSent('otras',this)">📍 Otras</button>
+          </div>
+          <button onclick="downloadCSV()" class="sent-dl-btn">⬇ Descargar Excel</button>
+        </div>
+        <div class="sent-kpi-row" id="SENT_STATS"></div>
+      </div>
+
+      <!-- Full-width vertical stack — no columns -->
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="sent-card" id="SENT_NULL"></div>
+        <div class="sent-card" id="SENT_TONE"></div>
+        <div class="sent-card" id="SENT_WORDS"></div>
+      </div>
+
+    </div><!-- /panel sentimientos -->
+
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════
+const SUPA_URL='https://fqfttzjukjjhglkoidek.supabase.co';
+const SUPA_KEY='sb_publishable_MRuTYFDfhj44CXjtLYwk1A_dU_wDPnI';
+const ADMIN_CODE='2X4U70V';
+
+// 48 países FIFA WC 2026
+const SL=[
+  {f:'🇲🇽',n:'México',g:'A'},{f:'🇿🇦',n:'Sudáfrica',g:'A'},{f:'🇰🇷',n:'Corea del Sur',g:'A'},{f:'🇨🇿',n:'República Checa',g:'A'},
+  {f:'🇨🇦',n:'Canadá',g:'B'},{f:'🇧🇦',n:'Bosnia y Herzegovina',g:'B'},{f:'🇶🇦',n:'Catar',g:'B'},{f:'🇨🇭',n:'Suiza',g:'B'},
+  {f:'🇧🇷',n:'Brasil',g:'C'},{f:'🇲🇦',n:'Marruecos',g:'C'},{f:'🇭🇹',n:'Haití',g:'C'},{f:'🏴󠁧󠁢󠁳󠁣󠁴󠁿',n:'Escocia',g:'C'},
+  {f:'🇺🇸',n:'Estados Unidos',g:'D'},{f:'🇵🇾',n:'Paraguay',g:'D'},{f:'🇦🇺',n:'Australia',g:'D'},{f:'🇹🇷',n:'Turquía',g:'D'},
+  {f:'🇩🇪',n:'Alemania',g:'E'},{f:'🇨🇮',n:'Costa de Marfil',g:'E'},{f:'🇪🇨',n:'Ecuador',g:'E'},{f:'🇨🇼',n:'Curazao',g:'E'},
+  {f:'🇳🇱',n:'Países Bajos',g:'F'},{f:'🇯🇵',n:'Japón',g:'F'},{f:'🇸🇪',n:'Suecia',g:'F'},{f:'🇹🇳',n:'Túnez',g:'F'},
+  {f:'🇧🇪',n:'Bélgica',g:'G'},{f:'🇪🇬',n:'Egipto',g:'G'},{f:'🇮🇷',n:'Irán',g:'G'},{f:'🇳🇿',n:'Nueva Zelanda',g:'G'},
+  {f:'🇪🇸',n:'España',g:'H'},{f:'🇨🇻',n:'Cabo Verde',g:'H'},{f:'🇸🇦',n:'Arabia Saudita',g:'H'},{f:'🇺🇾',n:'Uruguay',g:'H'},
+  {f:'🇫🇷',n:'Francia',g:'I'},{f:'🇸🇳',n:'Senegal',g:'I'},{f:'🇳🇴',n:'Noruega',g:'I'},{f:'🇮🇶',n:'Irak',g:'I'},
+  {f:'🇦🇷',n:'Argentina',g:'J'},{f:'🇩🇿',n:'Argelia',g:'J'},{f:'🇦🇹',n:'Austria',g:'J'},{f:'🇯🇴',n:'Jordania',g:'J'},
+  {f:'🇵🇹',n:'Portugal',g:'K'},{f:'🇨🇩',n:'RD del Congo',g:'K'},{f:'🇺🇿',n:'Uzbekistán',g:'K'},{f:'🇨🇴',n:'Colombia',g:'K'},
+  {f:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',n:'Inglaterra',g:'L'},{f:'🇭🇷',n:'Croacia',g:'L'},{f:'🇬🇭',n:'Ghana',g:'L'},{f:'🇵🇦',n:'Panamá',g:'L'}
+];
+const FLAG=Object.fromEntries(SL.map(p=>[p.n,p.f]));
+const fl=n=>FLAG[n]||'🏳';
+
+// ═══════════════════════════════════════
+// ESTADO
+// ═══════════════════════════════════════
+let rankingData=[], currentFilter='todas', savedResults=null;
+
+// ═══════════════════════════════════════
+// SUPABASE
+// ═══════════════════════════════════════
+function sbGet(q){
+  return fetch(SUPA_URL+'/rest/v1/'+q,{
+    headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Accept':'application/json','Accept-Profile':'mil'}
+  }).then(r=>r.json().then(d=>({ok:r.ok,status:r.status,data:d})));
+}
+function sbPatch(table,match,body){
+  const qs=Object.entries(match).map(([k,v])=>k+'=eq.'+encodeURIComponent(v)).join('&');
+  return fetch(SUPA_URL+'/rest/v1/'+table+'?'+qs,{
+    method:'PATCH',
+    headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Content-Profile':'mil','Prefer':'return=minimal'},
+    body:JSON.stringify(body)
+  }).then(r=>({ok:r.ok,status:r.status}));
+}
+
+// ═══════════════════════════════════════
+// LOGIN
+// ═══════════════════════════════════════
+document.getElementById('INP_CODE').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+function doLogin(){
+  const code=document.getElementById('INP_CODE').value.trim().toUpperCase();
+  const err=document.getElementById('LOGIN_ERR');
+  if(code===ADMIN_CODE){
+    document.getElementById('LOGIN_SCREEN').style.display='none';
+    document.getElementById('APP').style.display='block';
+    err.style.display='none';
+    initApp();
+  } else {
+    err.style.display='block';
+    document.getElementById('INP_CODE').value='';
+    document.getElementById('INP_CODE').focus();
+  }
+}
+function doLogout(){
+  document.getElementById('APP').style.display='none';
+  document.getElementById('LOGIN_SCREEN').style.display='flex';
+  document.getElementById('INP_CODE').value='';
+  rankingData=[];
+}
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+function initApp(){
+  // Llenar selects por grupo
+  const groups={};
+  SL.forEach(p=>{if(!groups[p.g])groups[p.g]=[];groups[p.g].push(p);});
+  ['R_P1','R_P2','R_P3','R_P4'].forEach(id=>{
+    const sel=document.getElementById(id);
+    Object.keys(groups).sort().forEach(g=>{
+      const og=document.createElement('optgroup'); og.label='Grupo '+g;
+      groups[g].forEach(p=>{
+        const opt=document.createElement('option'); opt.value=p.n; opt.textContent=p.f+' '+p.n; og.appendChild(opt);
+      });
+      sel.appendChild(og);
+    });
+    sel.addEventListener('change',syncLabels);
+  });
+  // Inputs de goles
+  ['R_G1L','R_G1V','R_G3L','R_G3V'].forEach(id=>{
+    const el=document.getElementById(id);
+    el.addEventListener('focus',()=>el.select());
+    el.addEventListener('click',()=>el.select());
+    el.addEventListener('input',()=>{let v=el.value.replace(/[^0-9]/g,'');if(v==='')v='0';el.value=String(parseInt(v,10));});
+    el.addEventListener('blur',()=>{if(el.value===''||isNaN(parseInt(el.value,10)))el.value='0';else el.value=String(Math.max(0,parseInt(el.value,10)));});
+  });
+  loadSavedResults();
+  syncLabels();
+}
+
+function syncLabels(){
+  const v={p1:document.getElementById('R_P1').value,p2:document.getElementById('R_P2').value,
+           p3:document.getElementById('R_P3').value,p4:document.getElementById('R_P4').value};
+  document.getElementById('LBL_P1').textContent=(v.p1||'Campeón')+' (local)';
+  document.getElementById('LBL_P2').textContent=(v.p2||'Subcampeón')+' (visita)';
+  document.getElementById('LBL_P3').textContent=(v.p3||'3er lugar')+' (local)';
+  document.getElementById('LBL_P4').textContent=(v.p4||'4to lugar')+' (visita)';
+  syncSelects();
+}
+function syncSelects(){
+  const ids=['R_P1','R_P2','R_P3','R_P4'];
+  const chosen=ids.map(id=>document.getElementById(id).value).filter(Boolean);
+  ids.forEach(id=>{
+    const sel=document.getElementById(id), myVal=sel.value;
+    Array.from(sel.options).forEach(opt=>{
+      if(!opt.value)return;
+      opt.disabled=chosen.includes(opt.value)&&opt.value!==myVal;
+      opt.style.color=opt.disabled?'#C0C4CC':'';
+    });
+  });
+}
+
+// ═══════════════════════════════════════
+// RESULTADOS — SUPABASE
+// ═══════════════════════════════════════
+async function loadSavedResults(){
+  try{
+    const res=await sbGet('db_pmundial_config?id=eq.resultados_2026&select=*');
+    if(!res.ok||!res.data||!res.data.length)return;
+    const row=res.data[0];
+    if(!row.p1_campeon)return;
+    const r={p1:row.p1_campeon,p2:row.p2_subcampeon,p3:row.p3_tercero,p4:row.p4_cuarto,
+              g1l:row.final_goles_local,g1v:row.final_goles_visita,
+              g3l:row.tercer_goles_local,g3v:row.tercer_goles_visita};
+    savedResults=r;
+    ['p1','p2','p3','p4'].forEach(k=>{const el=document.getElementById('R_'+k.toUpperCase());if(el&&r[k])el.value=r[k];});
+    document.getElementById('R_G1L').value=r.g1l??0;
+    document.getElementById('R_G1V').value=r.g1v??0;
+    document.getElementById('R_G3L').value=r.g3l??0;
+    document.getElementById('R_G3V').value=r.g3v??0;
+    showCurrentResults(r); syncLabels();
+  }catch(e){console.warn('loadSavedResults:',e);}
+}
+
+function showCurrentResults(r){
+  const box=document.getElementById('CURRENT_RESULTS');
+  if(!r||!r.p1){box.style.display='none';return;}
+  box.style.display='block';
+  document.getElementById('RESULTS_PILLS').innerHTML=[
+    {pos:'1°',val:r.p1,pts:'4pts'},{pos:'2°',val:r.p2,pts:'3pts'},
+    {pos:'Final',val:r.g1l+' - '+r.g1v,pts:null},
+    {pos:'3°',val:r.p3,pts:'2pts'},{pos:'4°',val:r.p4,pts:'1pt'},
+    {pos:'3°/4°',val:r.g3l+' - '+r.g3v,pts:null}
+  ].map(e=>`<div class="result-pill"><span class="result-pill-pos">${e.pos}</span><span class="result-pill-val">${e.pts?fl(e.val)+' ':''} ${e.val||'—'}</span>${e.pts?`<span class="result-pill-score">${e.pts}</span>`:''}</div>`).join('');
+}
+
+async function saveResults(){
+  const p1=document.getElementById('R_P1').value,p2=document.getElementById('R_P2').value,
+        p3=document.getElementById('R_P3').value,p4=document.getElementById('R_P4').value;
+  const st=document.getElementById('SAVE_STATUS'),btn=document.getElementById('BTN_SAVE_TXT');
+  if(!p1||!p2||!p3||!p4){st.className='save-status err';st.textContent='⚠️ Debes seleccionar los 4 países.';return;}
+  if(new Set([p1,p2,p3,p4]).size<4){st.className='save-status err';st.textContent='⚠️ Los 4 países deben ser distintos.';return;}
+  const g1l=parseInt(document.getElementById('R_G1L').value)||0,g1v=parseInt(document.getElementById('R_G1V').value)||0,
+        g3l=parseInt(document.getElementById('R_G3L').value)||0,g3v=parseInt(document.getElementById('R_G3V').value)||0;
+  btn.innerHTML='<span class="spinner"></span> Guardando…';
+  document.querySelector('.btn-save').disabled=true;
+  try{
+    const res=await sbPatch('db_pmundial_config',{id:'resultados_2026'},{
+      p1_campeon:p1,p2_subcampeon:p2,p3_tercero:p3,p4_cuarto:p4,
+      final_goles_local:g1l,final_goles_visita:g1v,
+      tercer_goles_local:g3l,tercer_goles_visita:g3v,
+      actualizado_en:new Date().toISOString()
+    });
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    savedResults={p1,p2,p3,p4,g1l,g1v,g3l,g3v};
+    st.className='save-status ok';st.textContent='✅ Guardado en Supabase.';
+    showCurrentResults(savedResults);rankingData=[];
+    document.getElementById('CALC_NOTE').textContent='⚠️ Resultados actualizados — recalcula el ranking.';
+  }catch(e){st.className='save-status err';st.textContent='❌ Error al guardar: '+e.message;}
+  finally{btn.textContent='💾 Guardar resultados en Supabase';document.querySelector('.btn-save').disabled=false;}
+}
+
+// ═══════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════
+function switchTab(name,btn){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  if(name==='sentimientos') loadSentimientos();
+}
+
+// ═══════════════════════════════════════
+// REGIONAL
+// ═══════════════════════════════════════
+function getRegional(loc){
+  if(!loc)return'otras';
+  const l=loc.toLowerCase();
+  if(l.includes('milagro'))return'Milagro';
+  if(l.includes('aloag'))return'Aloag';
+  return'otras';
+}
+
+// ═══════════════════════════════════════
+// SCORING
+// ═══════════════════════════════════════
+function getResultado(gl,gv){
+  if(gl==null||gv==null||gl===''||gv==='')return null;
+  const a=parseInt(gl),b=parseInt(gv);
+  return a>b?'L':a<b?'V':'E';
+}
+
+function calcScore(reg,res){
+  const ok1=reg.top4_1_pais===res.p1, ok2=reg.top4_2_pais===res.p2,
+        ok3=reg.top4_3_pais===res.p3, ok4=reg.top4_4_pais===res.p4;
+  const pts1=ok1?4:0, pts2=ok2?3:0, pts3=ok3?2:0, pts4=ok4?1:0;
+
+  // Bonus final
+  const bG1L=(parseInt(reg.top4_1_goles_local)===parseInt(res.g1l))?1:0;
+  const bG1V=(parseInt(reg.top4_1_goles_visita)===parseInt(res.g1v))?1:0;
+  const bR1=(getResultado(reg.top4_1_goles_local,reg.top4_1_goles_visita)===getResultado(res.g1l,res.g1v)&&getResultado(res.g1l,res.g1v)!==null)?1:0;
+
+  // Bonus 3°/4°
+  const bG3L=(parseInt(reg.top4_3_goles_local)===parseInt(res.g3l))?1:0;
+  const bG3V=(parseInt(reg.top4_3_goles_visita)===parseInt(res.g3v))?1:0;
+  const bR3=(getResultado(reg.top4_3_goles_local,reg.top4_3_goles_visita)===getResultado(res.g3l,res.g3v)&&getResultado(res.g3l,res.g3v)!==null)?1:0;
+  const bonusTotal=bG1L+bG1V+bR1+bG3L+bG3V+bR3;
+
+  // Quiz por intentos
+  const q1ok=!!reg.quiz_q1_aprobado, q2ok=!!reg.quiz_q2_aprobado;
+  const q1at=reg.quiz_q1_intentos||0, q2at=reg.quiz_q2_intentos||0;
+  const ptsQ1=q1ok?(q1at===1?3:q1at===2?2:1):0;
+  const ptsQ2=q2ok?(q2at===1?3:q2at===2?2:1):0;
+  const ptsQuiz=ptsQ1+ptsQ2;
+
+  return{
+    codigo:String(reg.colaborador_codigo).trim(),
+    ok1,ok2,ok3,ok4,pts1,pts2,pts3,pts4,
+    bG1L,bG1V,bR1,bG3L,bG3V,bR3,bonusTotal,
+    q1ok,q2ok,q1at,q2at,ptsQ1,ptsQ2,ptsQuiz,
+    total:pts1+pts2+pts3+pts4+bonusTotal+ptsQuiz,
+    pos:0,
+    pred1:reg.top4_1_pais,pred2:reg.top4_2_pais,pred3:reg.top4_3_pais,pred4:reg.top4_4_pais,
+    predG1L:reg.top4_1_goles_local,predG1V:reg.top4_1_goles_visita,
+    predG3L:reg.top4_3_goles_local,predG3V:reg.top4_3_goles_visita
+  };
+}
+
+// ═══════════════════════════════════════
+// CALCULAR RANKING
+// ═══════════════════════════════════════
+async function calcRanking(){
+  if(!savedResults||!savedResults.p1){
+    document.getElementById('RANKING_BODY').innerHTML=`<div class="no-data"><div class="no-data-icon">🏆</div><h3>Primero ingresa los resultados</h3><p>Ve a "Resultados Reales", completa los 4 países y guarda.</p></div>`;
+    return;
+  }
+  const btn=document.getElementById('BTN_CALC'),txt=document.getElementById('BTN_CALC_TXT');
+  btn.disabled=true; txt.innerHTML='<span class="spinner"></span> Cargando datos…';
+  try{
+    // ── Paginate registros (>1000 rows) ──
+    let registros=[], rOff=0;
+    while(true){
+      const rReg=await sbGet('db_pmundial_registros?select=*&order=colaborador_codigo.asc&limit=1000&offset='+rOff);
+      if(!rReg.ok)throw new Error('Error al cargar registros: '+rReg.status);
+      const batch=rReg.data||[];
+      registros=registros.concat(batch);
+      if(batch.length<1000)break;
+      rOff+=1000;
+    }
+
+    // ── Paginate usuarios (>1000 rows) ──
+    let usrRows=[], uOff=0;
+    while(true){
+      const rUsr=await sbGet('db_pmundial_usuarios?select=codigo,nombre,apellido,localidad,departamento&order=codigo.asc&limit=1000&offset='+uOff);
+      if(!rUsr.ok)throw new Error('Error al cargar usuarios: '+rUsr.status);
+      const batch=rUsr.data||[];
+      usrRows=usrRows.concat(batch);
+      if(batch.length<1000)break;
+      uOff+=1000;
+    }
+
+    // ── Build lookup map with all key variants ──
+    const usrMap={};
+    usrRows.forEach(u=>{
+      const raw=String(u.codigo).trim();
+      const num=String(parseInt(raw,10));
+      // Store every plausible key format
+      [raw, raw.toLowerCase(), num, raw.padStart(4,'0'), raw.padStart(3,'0'), raw.replace(/^0+/,'')].forEach(k=>{
+        if(k) usrMap[k]=u;
+      });
+    });
+
+    rankingData=registros.map(reg=>{
+      const raw=String(reg.colaborador_codigo).trim();
+      // Try multiple key formats to find the user
+      const usr=usrMap[raw]
+             ||usrMap[raw.toLowerCase()]
+             ||usrMap[String(parseInt(raw,10))]
+             ||usrMap[raw.padStart(4,'0')]
+             ||usrMap[raw.padStart(3,'0')]
+             ||usrMap[raw.replace(/^0+/,'')]
+             ||null;
+      const score=calcScore(reg,savedResults);
+      // Nombre: si hay usuario, usar nombre+apellido; sino mostrar código
+      const fullName=usr?`${usr.nombre||''} ${usr.apellido||''}`.trim():''; score.nombre=fullName||String(reg.colaborador_codigo).trim();
+      score.localidad=usr?(usr.localidad||''):'';
+      score.departamento=usr?(usr.departamento||''):'';
+      score.regional=getRegional(usr?usr.localidad:'');
+      score.sinUsuario=!usr;
+      return score;
+    });
+
+    rankingData.sort((a,b)=>b.total-a.total||b.ptsQuiz-a.ptsQuiz||a.codigo.localeCompare(b.codigo));
+    rankingData.forEach((r,i)=>{
+      if(i>0&&rankingData[i-1].total===r.total) r.pos=rankingData[i-1].pos;
+      else r.pos=i+1;
+    });
+
+    document.getElementById('CALC_NOTE').textContent=
+      `Calculado ${new Date().toLocaleTimeString('es-EC')} · ${rankingData.length} participantes`;
+    renderRanking(currentFilter);
+  }catch(e){
+    console.error(e);
+    document.getElementById('RANKING_BODY').innerHTML=`<div class="no-data"><div class="no-data-icon">❌</div><h3>Error</h3><p>${e.message}</p></div>`;
+  }finally{btn.disabled=false;txt.textContent='⚡ Recalcular';}
+}
+
+function filterReg(name,btn){
+  currentFilter=name;
+  document.querySelectorAll('.rtab').forEach(b=>b.className='rtab');
+  btn.className='rtab a-'+({'todas':'todas','Milagro':'milagro','Aloag':'aloag','otras':'otras'}[name]||'otras');
+  renderRanking(name);
+}
+
+// ═══════════════════════════════════════
+// RENDER RANKING
+// ═══════════════════════════════════════
+function renderResultBar(){
+  const bar=document.getElementById('RESULT_BAR');
+  if(!savedResults||!savedResults.p1){bar.style.display='none';return;}
+  const r=savedResults;
+  const rl={L:'L gana',V:'V gana',E:'Empate'};
+  const res1=rl[getResultado(r.g1l,r.g1v)]||'?';
+  const res3=rl[getResultado(r.g3l,r.g3v)]||'?';
+  bar.style.display='flex';
+  bar.innerHTML=`
+    <span class="result-bar-title">Resultados →</span>
+    <div class="rbi"><span class="rbi-pos">1°</span><span class="rbi-val">${fl(r.p1)} ${r.p1}</span><span class="rbi-score">4pt</span></div>
+    <div class="rbi"><span class="rbi-pos">2°</span><span class="rbi-val">${fl(r.p2)} ${r.p2}</span><span class="rbi-score">3pt</span></div>
+    <div class="rbi"><span class="rbi-pos">3°</span><span class="rbi-val">${fl(r.p3)} ${r.p3}</span><span class="rbi-score">2pt</span></div>
+    <div class="rbi"><span class="rbi-pos">4°</span><span class="rbi-val">${fl(r.p4)} ${r.p4}</span><span class="rbi-score">1pt</span></div>
+    <div class="rbi-sep"></div>
+    <div class="rbi"><span class="rbi-pos">Final</span><span class="rbi-val">${r.g1l} – ${r.g1v}</span><span class="rbi-score">${res1}</span></div>
+    <div class="rbi"><span class="rbi-pos">3°/4°</span><span class="rbi-val">${r.g3l} – ${r.g3v}</span><span class="rbi-score">${res3}</span></div>
+  `;
+}
+
+function injectColgroup(showReg){
+  // col widths: #, cod, nom, [reg], p1,p2,p3,p4, sc-fin,res-fin, sc-34,res-34, q1,q2, total
+  const cols=[44,72,170,...(showReg?[96]:[]),72,72,72,72,96,80,96,80,84,84,80];
+  const tbl=document.getElementById('RK_TABLE');
+  if(!tbl)return;
+  const ex=tbl.querySelector('colgroup');
+  if(ex)ex.remove();
+  const cg=document.createElement('colgroup');
+  cols.forEach(w=>{const col=document.createElement('col');col.style.width=w+'px';cg.appendChild(col);});
+  tbl.insertBefore(cg,tbl.firstChild);
+}
+
+function renderTableHeader(showReg){
+  const idSpan=3+(showReg?1:0);
+  document.getElementById('RK_GROUPS').innerHTML=`
+    <th class="rk-gth gth-id" colspan="${idSpan}">Identificación</th>
+    <th class="rk-gth gth-pos" colspan="4">🏆 Posición — 10 pts máx</th>
+    <th class="rk-gth gth-fin" colspan="2">⚽ Final</th>
+    <th class="rk-gth gth-34" colspan="2">🥉 3°/4°</th>
+    <th class="rk-gth gth-quiz" colspan="2">🧠 Quiz — 6 pts máx</th>
+    <th class="rk-gth gth-tot">Total</th>`;
+
+  document.getElementById('RK_HEAD').innerHTML=`
+    <th class="rk-th">#</th>
+    <th class="rk-th al">Código</th>
+    <th class="rk-th al">Nombre</th>
+    ${showReg?'<th class="rk-th">Regional</th>':''}
+    <th class="rk-th bl" style="background:#F0FDF4">🥇 Campeón</th>
+    <th class="rk-th" style="background:#F0FDF4">🥈 2do</th>
+    <th class="rk-th" style="background:#F0FDF4">🥉 3ro</th>
+    <th class="rk-th" style="background:#F0FDF4">4to</th>
+    <th class="rk-th bl" style="background:#FFFBEB">Marcador</th>
+    <th class="rk-th" style="background:#FFFBEB">Ganador</th>
+    <th class="rk-th bl" style="background:#FFFBEB">Marcador</th>
+    <th class="rk-th" style="background:#FFFBEB">Ganador</th>
+    <th class="rk-th bl" style="background:#F5F3FF">Q1</th>
+    <th class="rk-th" style="background:#F5F3FF">Q2</th>
+    <th class="rk-th bl">Total</th>`;
+
+  injectColgroup(showReg);
+}
+
+function renderResultBar(){
+  const bar=document.getElementById('RESULT_BAR');
+  if(!savedResults||!savedResults.p1){bar.style.display='none';return;}
+  const r=savedResults;
+  const rl={L:'Local gana',V:'Visita gana',E:'Empate'};
+  bar.style.display='flex';
+  bar.innerHTML=`
+    <span class="result-bar-title">Resultados →</span>
+    <div class="rbi"><span class="rbi-pos">1°</span><span class="rbi-val">${fl(r.p1)} ${r.p1}</span><span class="rbi-score">4pt</span></div>
+    <div class="rbi"><span class="rbi-pos">2°</span><span class="rbi-val">${fl(r.p2)} ${r.p2}</span><span class="rbi-score">3pt</span></div>
+    <div class="rbi"><span class="rbi-pos">3°</span><span class="rbi-val">${fl(r.p3)} ${r.p3}</span><span class="rbi-score">2pt</span></div>
+    <div class="rbi"><span class="rbi-pos">4°</span><span class="rbi-val">${fl(r.p4)} ${r.p4}</span><span class="rbi-score">1pt</span></div>
+    <div class="rbi-sep"></div>
+    <div class="rbi"><span class="rbi-pos">Final</span><span class="rbi-val">${r.g1l}–${r.g1v}</span><span class="rbi-score">${rl[getResultado(r.g1l,r.g1v)]||'?'}</span></div>
+    <div class="rbi"><span class="rbi-pos">3°/4°</span><span class="rbi-val">${r.g3l}–${r.g3v}</span><span class="rbi-score">${rl[getResultado(r.g3l,r.g3v)]||'?'}</span></div>`;
+}
+
+function renderRanking(filter){
+  if(!rankingData.length){
+    document.getElementById('RANKING_STATS').style.display='none';
+    document.getElementById('RESULT_BAR').style.display='none';
+    document.getElementById('RANKING_BODY').innerHTML=`<tr><td colspan="16"><div class="no-data"><div class="no-data-icon">📊</div><h3>Sin datos</h3><p>Presiona "Calcular ranking".</p></div></td></tr>`;
+    return;
+  }
+
+  renderResultBar();
+  const showReg=filter==='todas';
+  renderTableHeader(showReg);
+
+  let list=filter==='todas'?rankingData
+    :filter==='otras'?rankingData.filter(r=>r.regional==='otras')
+    :rankingData.filter(r=>r.regional===filter);
+
+  const sorted=[...list].sort((a,b)=>b.total-a.total||b.ptsQuiz-a.ptsQuiz||a.codigo.localeCompare(b.codigo));
+  const posMap={};
+  sorted.forEach((r,i)=>{
+    if(i>0&&sorted[i-1].total===r.total) posMap[r.codigo]=posMap[sorted[i-1].codigo];
+    else posMap[r.codigo]=i+1;
+  });
+
+  // Stats
+  document.getElementById('RANKING_STATS').style.display='grid';
+  document.getElementById('ST_TOT').textContent=sorted.length;
+  document.getElementById('ST_MAX').textContent=sorted.length?sorted[0].total:'—';
+  document.getElementById('ST_AVG').textContent=sorted.length?(sorted.reduce((s,r)=>s+r.total,0)/sorted.length).toFixed(1):'—';
+  document.getElementById('ST_QOK').textContent=sorted.filter(r=>r.ptsQuiz===6).length;
+
+  if(!sorted.length){
+    document.getElementById('RANKING_BODY').innerHTML=`<tr><td colspan="16"><div class="no-data"><div class="no-data-icon">🔍</div><h3>Sin participantes</h3></div></td></tr>`;
+    return;
+  }
+
+  const chips={'Milagro':'<span class="chip chip-m">Milagro</span>','Aloag':'<span class="chip chip-a">Aloag</span>','otras':'<span class="chip chip-o">Otras</span>'};
+  const posG=p=>p===1?'g1':p===2?'g2':p===3?'g3':'';
+  const rowBg=p=>p===1?'rk-top1':p===3?'rk-top3':'';
+  const rl={L:'Local',V:'Visita',E:'Empate'};
+  const ri={L:'⚔️',V:'🏃',E:'🤝'};
+  const sr=savedResults;
+  const totalCols=14+(showReg?1:0);
+
+  // ── Cell builders ──
+  const countryC=(ok,pts,pred,bg)=>`
+    <td class="rk-td${bg?' bl':''}" style="${bg?'background:'+bg:''}height:72px">
+      <div class="td-country">
+        <div class="tc-flag">${fl(pred||'')}</div>
+        <div class="tc-name" title="${pred||'—'}">${(pred||'—').replace(/ .*/,'')}</div>
+        <div class="tc-pts ${ok?'ok':'miss'}">${pts>0?'+'+pts+'pt':'✗'}</div>
+      </div>
+    </td>`;
+
+  const scoreC=(okL,okV,pL,pV,rL,rV,bg)=>{
+    const any=okL||okV, pts=(okL?1:0)+(okV?1:0);
+    return`<td class="rk-td bl" style="background:${bg};height:72px">
+      <div class="td-score">
+        <div class="ts-pred ${any?'ok':'miss'}">${pL??'?'}–${pV??'?'}</div>
+        <div class="ts-real">real: ${rL??'?'}–${rV??'?'}</div>
+        <div class="ts-pts ${any?'ok':'miss'}">${pts===2?'✓✓ +2pt':pts===1?'✓ +1pt':'✗'}</div>
+      </div>
+    </td>`;
+  };
+
+  const resC=(ok,pGL,pGV,rGL,rGV,bg)=>{
+    const pR=getResultado(pGL,pGV), rR=getResultado(rGL,rGV);
+    return`<td class="rk-td" style="background:${bg};height:72px">
+      <div class="td-res">
+        <div class="tr-icon">${ri[pR]||'?'}</div>
+        <div class="tr-lbl ${ok?'ok':'miss'}">${rl[pR]||'?'}</div>
+        <div class="tr-real">real: ${rl[rR]||'?'}</div>
+        <div class="tr-pts ${ok?'ok':'miss'}">${ok?'✓ +1pt':'✗'}</div>
+      </div>
+    </td>`;
+  };
+
+  const quizC=(ok,pts,at,bg)=>{
+    const tryLbl=ok?(at===1?'1er int':at===2?'2do int':'3er int'):'No aprobó';
+    return`<td class="rk-td bl" style="background:${bg};height:72px">
+      <div class="td-quiz">
+        <div class="tq-circle ${ok?'ok':'miss'}">${ok?pts:'✗'}</div>
+        <div class="tq-try">${tryLbl}</div>
+        <div class="tq-pts ${ok?'ok':'miss'}">${ok?'+'+pts+'pt':'0pt'}</div>
+      </div>
+    </td>`;
+  };
+
+  document.getElementById('RANKING_BODY').innerHTML=sorted.map(r=>{
+    const pos=posMap[r.codigo];
+    const expId='x'+r.codigo.replace(/\W/g,'_');
+    const bg1='#F0FDF4', bg2='#FFFBEB', bg3='#F5F3FF';
+
+    // ── Expand detail ──
+    const detail=`<div class="rk-exp-inner"><div class="exp-grid">
+      <div class="exp-card">
+        <div class="exp-title" style="color:#15803D">🏆 Posiciones</div>
+        ${[['🥇 Campeón',r.pred1,sr.p1,r.ok1,r.pts1,'ok'],['🥈 2do',r.pred2,sr.p2,r.ok2,r.pts2,'ok'],
+           ['🥉 3ro',r.pred3,sr.p3,r.ok3,r.pts3,'ok'],['4to',r.pred4,sr.p4,r.ok4,r.pts4,'ok']]
+          .map(([lbl,pred,real,ok,pts,type])=>`<div class="exp-row">
+            <span class="exp-lbl">${lbl}</span>
+            <span class="exp-val">${fl(pred||'')} ${pred||'—'} <span style="color:#94A3B8;font-size:10px">real: ${fl(real||'')} ${real}</span></span>
+            <span class="exp-pts ${ok?'ep-ok':'ep-miss'}">${ok?'+'+pts+' pt':'✗'}</span>
+          </div>`).join('')}
+      </div>
+      <div class="exp-card">
+        <div class="exp-title" style="color:#92400E">⚽ Bonus Final — ${fl(sr.p1)} ${sr.p1} ${sr.g1l}–${sr.g1v} ${fl(sr.p2)} ${sr.p2}</div>
+        <div class="exp-row"><span class="exp-lbl">Pronosticó</span><span class="exp-val" style="font-weight:700">${r.predG1L??'?'} – ${r.predG1V??'?'}</span></div>
+        ${[['Gol '+sr.p1+' (local)',r.bG1L,r.predG1L,sr.g1l],
+           ['Gol '+sr.p2+' (visita)',r.bG1V,r.predG1V,sr.g1v],
+           ['Resultado',r.bR1,rl[getResultado(r.predG1L,r.predG1V)],rl[getResultado(sr.g1l,sr.g1v)]]]
+          .map(([lbl,ok,pred,real])=>`<div class="exp-row">
+            <span class="exp-lbl">${lbl}</span>
+            <span class="exp-val">${pred??'?'} <span style="color:#94A3B8;font-size:10px">real: ${real??'?'}</span></span>
+            <span class="exp-pts ${ok?'ep-bon':'ep-miss'}">${ok?'+1 pt':'✗'}</span>
+          </div>`).join('')}
+      </div>
+      <div class="exp-card">
+        <div class="exp-title" style="color:#92400E">🥉 Bonus 3°/4° — ${fl(sr.p3)} ${sr.p3} ${sr.g3l}–${sr.g3v} ${fl(sr.p4)} ${sr.p4}</div>
+        <div class="exp-row"><span class="exp-lbl">Pronosticó</span><span class="exp-val" style="font-weight:700">${r.predG3L??'?'} – ${r.predG3V??'?'}</span></div>
+        ${[['Gol '+sr.p3+' (local)',r.bG3L,r.predG3L,sr.g3l],
+           ['Gol '+sr.p4+' (visita)',r.bG3V,r.predG3V,sr.g3v],
+           ['Resultado',r.bR3,rl[getResultado(r.predG3L,r.predG3V)],rl[getResultado(sr.g3l,sr.g3v)]]]
+          .map(([lbl,ok,pred,real])=>`<div class="exp-row">
+            <span class="exp-lbl">${lbl}</span>
+            <span class="exp-val">${pred??'?'} <span style="color:#94A3B8;font-size:10px">real: ${real??'?'}</span></span>
+            <span class="exp-pts ${ok?'ep-bon':'ep-miss'}">${ok?'+1 pt':'✗'}</span>
+          </div>`).join('')}
+      </div>
+      <div class="exp-card">
+        <div class="exp-title" style="color:#6D28D9">🧠 Quiz Adelca</div>
+        ${[['Pregunta 1',r.q1ok,r.q1at,r.ptsQ1],['Pregunta 2',r.q2ok,r.q2at,r.ptsQ2]]
+          .map(([lbl,ok,at,pts])=>`<div class="exp-row">
+            <span class="exp-lbl">${lbl}</span>
+            <span class="exp-val">${ok?(at===1?'1er intento':at===2?'2do intento':'3er intento'):'No aprobó'}</span>
+            <span class="exp-pts ${ok?'ep-quiz':'ep-miss'}">${ok?'+'+pts+' pt':'✗ 0 pt'}</span>
+          </div>`).join('')}
+        <div class="exp-row" style="margin-top:4px;border-top:1.5px solid var(--brd)">
+          <span class="exp-lbl" style="font-weight:700">Total quiz</span><span></span>
+          <span class="exp-pts ep-quiz">+${r.ptsQuiz} pt</span>
+        </div>
+      </div>
+    </div></div>`;
+
+    return`
+    <tr class="rk-row ${rowBg(pos)}" onclick="toggleExp('${expId}')">
+      <td class="rk-td" style="height:72px">
+        <div style="display:flex;align-items:center;justify-content:center;height:100%">
+          <div class="td-pos ${posG(pos)}">${pos}</div>
+        </div>
+      </td>
+      <td class="rk-td al" style="height:72px">
+        <div style="display:flex;align-items:center;justify-content:flex-start;height:100%;padding:0 4px 0 10px;">
+          <b style="font-family:'Barlow Condensed',sans-serif;font-size:15px">${r.codigo}</b>
+        </div>
+      </td>
+      <td class="rk-td al" style="height:72px">
+        <div style="display:flex;flex-direction:column;justify-content:center;height:100%;padding:8px 4px 8px 10px;">
+          <div style="font-weight:700;font-size:12px;line-height:1.3">${r.nombre||'—'}</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px">${r.localidad||'Sin localidad'}</div>
+        </div>
+      </td>
+      ${showReg?`<td class="rk-td" style="height:72px"><div style="display:flex;align-items:center;justify-content:center;height:100%">${chips[r.regional]||''}</div></td>`:''}
+      ${countryC(r.ok1,r.pts1,r.pred1,bg1)}
+      ${countryC(r.ok2,r.pts2,r.pred2,bg1)}
+      ${countryC(r.ok3,r.pts3,r.pred3,bg1)}
+      ${countryC(r.ok4,r.pts4,r.pred4,bg1)}
+      ${scoreC(r.bG1L===1,r.bG1V===1,r.predG1L,r.predG1V,sr.g1l,sr.g1v,bg2)}
+      ${resC(r.bR1===1,r.predG1L,r.predG1V,sr.g1l,sr.g1v,bg2)}
+      ${scoreC(r.bG3L===1,r.bG3V===1,r.predG3L,r.predG3V,sr.g3l,sr.g3v,bg2)}
+      ${resC(r.bR3===1,r.predG3L,r.predG3V,sr.g3l,sr.g3v,bg2)}
+      ${quizC(r.q1ok,r.ptsQ1,r.q1at,bg3)}
+      ${quizC(r.q2ok,r.ptsQ2,r.q2at,bg3)}
+      <td class="rk-td bl" style="height:72px">
+        <div class="td-total" style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 4px;">
+          <div class="tt-num">${r.total}</div>
+          <div class="tt-sub">${[
+            (r.pts1+r.pts2+r.pts3+r.pts4)>0?'pos '+(r.pts1+r.pts2+r.pts3+r.pts4):'',
+            r.bonusTotal>0?'+'+r.bonusTotal+'b':'',
+            r.ptsQuiz>0?'+'+r.ptsQuiz+'q':''
+          ].filter(Boolean).join(' ')}</div>
+        </div>
+      </td>
+    </tr>
+    <tr class="rk-exp" id="${expId}">
+      <td colspan="${totalCols}">${detail}</td>
+    </tr>`;
+  }).join('');
+
+  injectColgroup(showReg);
+}
+
+function toggleExp(id){
+  const el=document.getElementById(id);
+  if(!el)return;
+  const open=el.classList.contains('open');
+  document.querySelectorAll('.rk-exp.open').forEach(e=>e.classList.remove('open'));
+  if(!open)el.classList.add('open');
+}
+
+// ═══════════════════════════════════════
+// SALARIO EMOCIONAL
+// ═══════════════════════════════════════
+let sentData = null;       // full dataset from Supabase
+let sentFilter = 'todas';  // current regional filter
+
+function getSentFiltered(){
+  if(!sentData) return null;
+  if(sentFilter === 'todas')   return sentData.rows;
+  if(sentFilter === 'otras')   return sentData.rows.filter(r => r._reg === 'otras');
+  return sentData.rows.filter(r => r._reg === sentFilter);
+}
+
+function filterSent(name, btn){
+  sentFilter = name;
+  document.querySelectorAll('#SENT_REG_TABS .rtab').forEach(b => b.className = 'rtab');
+  btn.className = 'rtab a-' + ({todas:'todas',Milagro:'milagro',Aloag:'aloag',otras:'otras'}[name]||'otras');
+  renderSentimientos();
+
+}
+
+async function loadSentimientos(){
+  if(sentData) return renderSentimientos();
+  try{
+    // Fetch registros (paginated)
+    let regRows = [];
+    let offset = 0;
+    while(true){
+      const res = await sbGet('db_pmundial_registros?select=sugerencia_emocional,colaborador_codigo&order=colaborador_codigo.asc&limit=1000&offset='+offset);
+      if(!res.ok) throw new Error('Error registros: '+res.status);
+      const batch = res.data || [];
+      regRows = regRows.concat(batch);
+      if(batch.length < 1000) break;
+      offset += 1000;
+    }
+
+    // Fetch usuarios for localidad
+    const usrRes = await sbGet('db_pmundial_usuarios?select=codigo,localidad&order=codigo.asc');
+    const usrMap = {};
+    (usrRes.data||[]).forEach(u => {
+      const key = String(u.codigo).trim();
+      usrMap[key] = u.localidad||'';
+      usrMap[key.padStart(4,'0')] = u.localidad||'';
+      usrMap[String(parseInt(key,10))] = u.localidad||'';
+    });
+
+    // Annotate each row with regional
+    regRows.forEach(r => {
+      const loc = usrMap[String(r.colaborador_codigo).trim()] || '';
+      const ll = loc.toLowerCase();
+      r._loc = loc;
+      r._reg = ll.includes('milagro') ? 'Milagro' : ll.includes('aloag') ? 'Aloag' : 'otras';
+      r._txt = (r.sugerencia_emocional||'').trim();
+    });
+
+    sentData = { total: regRows.length, rows: regRows };
+    renderSentimientos();
+  }catch(e){
+    console.error('loadSentimientos:', e);
+    document.getElementById('SENT_STATS').innerHTML = '<div style="color:red;padding:16px">Error: '+e.message+'</div>';
+  }
+}
+
+const MIN_WORDS = 4;  // responses with fewer words are excluded from analysis
+
+const CATS = [
+  {
+    id: 'economico',
+    label: 'Compensación y beneficios',
+    icon: '💰',
+    color: '#C2410C',
+    bg: '#FEF2F2',
+    desc: 'Primas, sueldo, igualdad de beneficios, bonos.',
+    keys: ['prima','primas','sueldo','sueldos','remuner',
+           'bono','bonos','aumento','porcentaje','variable','alza de',
+           'igual','igualdad','equidad','equitativo','igualitario','favoritismo',
+           'favoritismos','clasismo','para todos','todos por igual','mismos beneficios']
+  },
+  {
+    id: 'reconocimiento',
+    label: 'Reconocimiento y valoración',
+    icon: '🏆',
+    color: '#B45309',
+    bg: '#FEF9C3',
+    desc: 'Reconocer logros, premiar desempeño, sentirse valorado.',
+    keys: ['reconocimiento','reconocer','reconozcan','destacado','destaque',
+           'premiar','premios','valorar','tomar en cuenta','tomen en cuenta',
+           'logros','esfuerzo','mérito','destacar','felicitar',
+           'colaborador del mes','compensación por desempeño','ser escuchado',
+           'escuchar','escucha','voz','opinión']
+  },
+  {
+    id: 'integracion',
+    label: 'Integración y recreación',
+    icon: '🎉',
+    color: '#6D28D9',
+    bg: '#F5F3FF',
+    desc: 'Actividades grupales, deportes, paseos, convivencia.',
+    keys: ['integración','integrar','actividades','deporte','deportivas',
+           'paseo','paseos','futbol','fútbol','campeonato','convivencia',
+           'torneo','dinámicas','juegos','recreat','rompehielos',
+           'familia','familiares','hijos','esposas','actividades familiares']
+  },
+  {
+    id: 'desarrollo',
+    label: 'Desarrollo profesional',
+    icon: '📚',
+    color: '#0891B2',
+    bg: '#ECFEFF',
+    desc: 'Capacitaciones, plan de carrera, crecimiento interno.',
+    keys: ['capacitación','capacitaciones','capacitar','desarrollo','crecimiento',
+           'profesional','formación','curso','cursos','aprender','habilidades',
+           'carrera','plan de carrera','promoción interna','teletrabajo',
+           'flexibilidad','horario flexible','viernes corto','día libre','cumpleaños libre']
+  },
+  {
+    id: 'bienestar',
+    label: 'Bienestar y ambiente laboral',
+    icon: '💚',
+    color: '#15803D',
+    bg: '#F0FDF4',
+    desc: 'Salud mental, clima laboral, condiciones de trabajo.',
+    keys: ['bienestar','salud','psicólogo','sicólogo','mental','estrés',
+           'físico','médico','motivación','ánimo','ambiente','clima',
+           'compañerismo','empatía','equipo','trabajo en equipo',
+           'jerarquías','horizontalidad','comunicación','diálogo']
+  },
+];
+
+function wordCount(txt){ return (txt||'').trim().split(/\s+/).filter(w=>w.length>0).length; }
+
+function computeMetrics(rows){
+  const total   = rows.length;
+  const allFill = rows.filter(r => r._txt);             // all non-empty
+  const filled  = allFill.filter(r => wordCount(r._txt) >= MIN_WORDS); // valid for analysis
+  const sinDet  = allFill.filter(r => wordCount(r._txt) < MIN_WORDS);  // too short
+  const nulls   = total - allFill.length;
+  const raw     = filled.map(r => r._txt);
+
+  // Words
+  const stop = new Set([
+    // Palabras funcionales del español
+    'de','la','el','los','las','un','una','y','en','que','a','por','para','con','o','al','del',
+    'es','se','nos','más','lo','su','sus','no','si','les','como','pero','ya','hay','muy',
+    'este','esta','todo','todos','cada','entre','donde','hacer','poder','tener','también',
+    'solo','cual','este','esta','esto','esos','esas','ellos','ellas','este','aquel',
+    'cuando','porque','aunque','sino','pues','ante','bajo','cabe','desde','hacia',
+    'hasta','mediante','según','tras','versus',
+    // Palabras corporativas/genéricas sin valor semocional
+    'adelca','colaboradores','colaborador','trabajadores','trabajador','empresa','personal',
+    'realizar','implementar','fortalecer','mejorar','mejor','buen','bien','malo',
+    'áreas','área','dentro','planta','años','sean','puedan','sería','seguir','hace',
+    'otras','todas','tener','quiero','quiero','puede','buena','bueno','mucho','menos',
+    'mismo','misma','siempre','nunca','solo','parte','tipo','nivel','forma','vez',
+    'veces','gran','gran','temas','tema','algo','algun','alguna','alguno','algún',
+    'dado','lado','caso','modo','vez','ahora','antes','después','igual','diferentes',
+    'nueva','nuevo','deben','debe','sobre','donde','tanto','favor','través',
+    'tienen','tenemos','hacer','hagan','puedan','lugar','manera','manera',
+  ]);
+  const wc = {};
+  raw.forEach(t => { (t.toLowerCase().match(/[a-záéíóúüñ]{4,}/g)||[]).forEach(w => { if(!stop.has(w)) wc[w]=(wc[w]||0)+1; }); });
+  const topWords = Object.entries(wc).sort((a,b)=>b[1]-a[1]).slice(0,50);
+
+  // Themes
+  const defs = [
+    {name:'Integración y recreación', icon:'🎉', keys:['actividades','integración','recreac','deport','paseos','futbol','juegos','campeonato','convivencia','familiar','celebr','bailoterapia'], color:'#6D28D9'},
+    {name:'Bienestar y clima laboral', icon:'💚', keys:['bienestar','emocional','motivación','clima','ambiente','equipo','compañeros','empático','salud','mental','apoyo'], color:'#0891B2'},
+    {name:'Reconocimiento y logros',   icon:'🏆', keys:['reconocimiento','logros','desempeño','premios','mérito','destacar','valorar','apreciar','felicitar'], color:'#15803D'},
+    {name:'Beneficios económicos',     icon:'💰', keys:['primas','salario','sueldo','pago','económico','beneficio','igual','bonos','aumento'], color:'#B45309'},
+    {name:'Desarrollo profesional',   icon:'📚', keys:['capacitaciones','desarrollo','crecimiento','profesional','estudio','aprendizaje','habilidades','formación','cursos'], color:'#BE185D'},
+    {name:'Tiempo y flexibilidad',    icon:'⏰', keys:['cumpleaños','libre','vacaciones','horario','tiempo','descanso','pausa','permiso','flexib'], color:'#0F766E'},
+  ];
+  const themes = defs.map(t => {
+    const matches = raw.filter(txt => t.keys.some(k => txt.toLowerCase().includes(k)));
+    const examples = [...matches].sort((a,b)=>b.length-a.length).slice(0,8);
+    return {...t, count:matches.length, pct:Math.round(matches.length/(raw.length||1)*100), examples};
+  }).sort((a,b)=>b.count-a.count);
+
+  // ── Tipo de solicitud por CLÁUSULA (no por registro) ──
+  // Split each response into clauses, classify each independently
+  const propuestaK = ['implementar','propongo','propuesta','sugiero','crear','organizar','realizar','sería bueno','sería ideal','podrían','debería','podría','taller','actividad','campaña','programa','proyecto','iniciativa','que se haga','que se organice','instaurar','establecer','incluir','habilitar'];
+  // ── 5 categorías temáticas — mutuamente excluyentes por prioridad ──
+
+
+  // Phrases that use "salario" as a concept name, not as compensation
+  const SALARIO_CONCEPTO = ['salario emocional','salario integral','salario en especie'];
+
+  function classifyClause(cl){
+    const tl = cl.toLowerCase();
+    // Check if "salario" appears but only as part of a concept phrase → strip before matching
+    let tlClean = tl;
+    SALARIO_CONCEPTO.forEach(phrase => {
+      tlClean = tlClean.replace(new RegExp(phrase, 'g'), '');
+    });
+    // Also check plain "salario" that is NOT part of a compensation context
+    // If after stripping concept phrases the word "salario" alone remains,
+    // only treat it as economic if accompanied by real comp words
+    const hasSalarioComp = (tlClean.includes('salario') &&
+      ['bajo','aumento','aumentar','subir','equiparar','igual','porcentaje','básico','mensual'].some(w => tlClean.includes(w)));
+
+    // Match against categories using cleaned text, but re-add salario trigger only if comp context
+    for(const cat of CATS){
+      const keysToTest = (cat.id === 'economico')
+        ? [...cat.keys, ...(hasSalarioComp ? ['salario'] : [])]
+        : cat.keys;
+      if(keysToTest.some(k => tlClean.includes(k))) return cat.id;
+    }
+    return 'integracion'; // default
+  }
+  const aspirK     = ['que se nos escuche','que nos escuchen','que se valore','que se reconozca','sentirse','sentirnos','ser valorado','ser reconocido','que importen','que cuenten','bienestar','felicidad','motivación','que haya respeto','que se respete','me gustaría que','quisiera que','ojalá'];
+
+  // Splitter: break on sentence endings AND conjunctions that introduce new ideas
+  function splitClauses(text){
+    // Split on sentence endings or coordinating conjunctions that introduce new ideas
+    const conjRe = /,\s*(?:y |pero |además |también |sin embargo |aunque |por otro lado |asimismo )/i;
+    return text
+      .split(/[.;!?]+/)
+      .flatMap(s => s.split(conjRe))
+      .map(s => s.trim())
+      .filter(s => s.length > 8);
+  }
+
+  // Counters per category
+  const catCounts = {};
+  const catClauses = {};
+  const catCollab = {};
+  CATS.forEach(cat => { catCounts[cat.id]=0; catClauses[cat.id]=[]; catCollab[cat.id]=new Set(); });
+  let mixedCount=0;
+
+  raw.forEach((t,idx) => {
+    const clauses = splitClauses(t);
+    const seenCats = new Set();
+    clauses.forEach(cl => {
+      const catId = classifyClause(cl);
+      catCounts[catId]++;
+      catClauses[catId].push({text:cl, src:idx});
+      catCollab[catId].add(idx);
+      seenCats.add(catId);
+    });
+    if(seenCats.size > 1) mixedCount++;
+  });
+  const totalClauses = Object.values(catCounts).reduce((a,b)=>a+b,0);
+  // Legacy aliases for KPI
+  const collabP = catCollab['reconocimiento'];
+  const collabQ = catCollab['economico'];
+
+  // ── Idea clustering: buckets with deduplicated examples ──
+  // ── Sub-temas por categoría: agrupados por keywords propias de cada categoría ──
+  // Cada categoría tiene sus propios sub-temas — sin buckets genéricos que se repitan
+  const CAT_SUBTEMAS = {
+    economico: [
+      {label:'Igualdad en primas',          keys:['igual','igualdad','equidad','equitativo','parejo','todos por igual','para todos']},
+      {label:'Aumento o ajuste de primas',   keys:['subir','suban','aumentar','aumento','mejorar las primas','porcentaje','variable','calculo','fórmula']},
+      {label:'Igualdad salarial',            keys:['sueldo','salario','remuner','alza','básico']},
+      {label:'Bonos e incentivos',           keys:['bono','bonos','incentivo','compensación']},
+    ],
+    reconocimiento: [
+      {label:'Programa de colaborador destacado', keys:['destacado','del mes','nominen','premien','mejor colaborador','trabajador del mes']},
+      {label:'Reconocimiento al esfuerzo',   keys:['esfuerzo','logros','mérito','compromi','dedicac','desempeño']},
+      {label:'Sentirse valorado y escuchado', keys:['valorar','escuchar','escucha','voz','opinión','tomar en cuenta','tomen en cuenta','ser escuchado']},
+      {label:'Celebración de logros',        keys:['felicitar','celebr','premiar','reconocer','aplaudir']},
+    ],
+    integracion: [
+      {label:'Actividades deportivas',       keys:['deporte','deportiv','futbol','fútbol','torneo','campeonato','atletismo','básquet','voley']},
+      {label:'Paseos y salidas',             keys:['paseo','paseos','viaje','salida','excursión','ruta','moto','bicicleta']},
+      {label:'Dinámicas y juegos grupales',  keys:['dinámicas','juegos','lúdico','rompehielos','convivencia','trivia','actividad recreat']},
+      {label:'Integración familiar',         keys:['familia','familiares','hijos','esposas','día de niños','actividades familiares']},
+    ],
+    desarrollo: [
+      {label:'Capacitaciones y cursos',      keys:['capacitación','capacitaciones','curso','cursos','talleres','formación','aprender']},
+      {label:'Plan de carrera interno',      keys:['carrera','plan de carrera','promoción','crecimiento','desarrollo profesional','ascenso']},
+      {label:'Flexibilidad horaria',         keys:['flexibilidad','flexible','teletrabajo','viernes corto','horario','medio día']},
+      {label:'Día libre en cumpleaños',      keys:['cumpleaños','cumpleañero','libre','permiso','día libre','medio día cumple']},
+    ],
+    bienestar: [
+      {label:'Salud mental y emocional',     keys:['psicólogo','sicólogo','mental','emocional','estrés','ánimo','bienestar']},
+      {label:'Comunicación y empatía',       keys:['comunicación','diálogo','empatía','escuchar','transparencia','feedback','reunión']},
+      {label:'Clima y ambiente de trabajo',  keys:['ambiente','clima','compañerismo','equipo','armonía','relaciones','convivir']},
+      {label:'Pausas activas y salud física', keys:['pausas','pausa activa','descanso','físico','médico','medicina','salud física','ejercicio']},
+    ],
+  };
+
+  // Para cada categoría, agrupa las cláusulas en sus sub-temas propios
+  function extractSubtemas(catId, clauseObjs){
+    const subtemas = CAT_SUBTEMAS[catId] || [];
+    const usedKeys = new Set();
+    const result = subtemas.map(sub => {
+      const matching = clauseObjs.filter(({text}) =>
+        sub.keys.some(k => text.toLowerCase().includes(k))
+      );
+      // Deduplicate: one example per source, prefer longer
+      const bySource = {};
+      matching.forEach(({text,src}) => {
+        if(!bySource[src] || text.length > bySource[src].length) bySource[src] = text;
+      });
+      // Global dedup across sub-temas
+      const examples = Object.values(bySource)
+        .sort((a,b) => b.length - a.length)
+        .filter(ex => {
+          const k = ex.slice(0,50).toLowerCase();
+          if(usedKeys.has(k)) return false;
+          usedKeys.add(k); return true;
+        })
+        .slice(0, 3);
+      return {label: sub.label, count: matching.length, examples};
+    })
+    .filter(s => s.count > 0 && s.examples.length > 0)
+    .sort((a,b) => b.count - a.count)
+    .slice(0, 3);
+    return result;
+  }
+
+  const catIdeas = {};
+  CATS.forEach(cat => {
+    catIdeas[cat.id] = extractSubtemas(cat.id, catClauses[cat.id]);
+  });
+  // Legacy aliases
+  const ideasP = catIdeas['reconocimiento'];
+  const ideasQ = catIdeas['economico'];
+  const ideasA = catIdeas['bienestar'];
+
+  // Depth
+  const lens = raw.map(t=>t.length);
+  const short  = lens.filter(l=>l<30).length;
+  const medium = lens.filter(l=>l>=30&&l<100).length;
+  const long   = lens.filter(l=>l>=100).length;
+
+  return {total, filled:raw, nulls, sinDet:sinDet.length, topWords, themes, totalClauses, mixedCount, catCounts, catCollab, catIdeas, collabP:collabP.size, collabQ:collabQ.size, short, medium, long};
+}
+
+function renderSentimientos(){
+  const rows = getSentFiltered();
+  if(!rows) return;
+  const d = computeMetrics(rows);
+  const fillPct = Math.round(d.filled.length/(d.total||1)*100);
+  const nullPct = 100-fillPct;
+  const deepPct = Math.round(d.long/(d.filled.length||1)*100);
+  const regLabel = {todas:'Adelca Total',Milagro:'Milagro',Aloag:'Aloag',otras:'Otras Regionales'}[sentFilter];
+
+  // ── KPI band (on dark background — use accent dots for color cues) ──
+  document.getElementById('SENT_STATS').innerHTML = [
+    {val:d.total,          lbl:'Total registros',       sub:regLabel,                           dot:'rgba(255,255,255,.3)'},
+    {val:d.filled.length,  lbl:'Analizadas',             sub:(100-nullPct-Math.round(d.sinDet/d.total*100))+'% del total', dot:'#4ADE80'},
+    {val:d.nulls+d.sinDet, lbl:'Excluidas',              sub:d.nulls+' vacías · '+d.sinDet+' sin detalle', dot:'#F87171'},
+    {val:Math.round((d.catCollab&&d.catCollab['integracion']?(d.catCollab['integracion'].size):0)/(d.filled.length||1)*100)+'%', lbl:'Piden integración', sub:(d.catCollab&&d.catCollab['integracion']?d.catCollab['integracion'].size:0)+' colaboradores', dot:'#A78BFA'},
+  ].map(s=>`<div class="sent-kpi" style="background:rgba(255,255,255,.04)">
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+      <div style="width:6px;height:6px;border-radius:50%;background:${s.dot};flex-shrink:0"></div>
+      <div class="sent-kpi-lbl">${s.lbl}</div>
+    </div>
+    <div class="sent-kpi-val">${s.val}</div>
+    <div class="sent-kpi-sub">${s.sub}</div>
+  </div>`).join('');
+
+  // ── Participación ──
+  const pShort  = Math.round(d.short /(d.filled.length||1)*100);
+  const pMed    = Math.round(d.medium/(d.filled.length||1)*100);
+  const pLong   = deepPct;
+  document.getElementById('SENT_NULL').innerHTML = `
+    <div class="sent-card-title">📊 Participación — ${regLabel}</div>
+    <!-- Horizontal 2-col: left = participation bar + depth cells | right = insight + bar detail -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start">
+      <!-- Left: main bar + depth breakdown -->
+      <div>
+        <div class="part-bar" style="margin-bottom:5px">
+          <div style="width:${fillPct}%;background:#15803D"></div>
+          <div style="width:${nullPct}%;background:#FCA5A5"></div>
+          <div style="width:${Math.round(d.sinDet/(d.total||1)*100)}%;background:#FCD34D"></div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;font-size:11px;margin-bottom:14px">
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#15803D;flex-shrink:0"></span><span style="font-weight:700;color:#15803D">${fillPct}% respondieron (${d.filled.length})</span></span>
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#FCA5A5;flex-shrink:0"></span><span style="font-weight:700;color:#C2410C">${nullPct}% sin respuesta (${d.nulls})</span></span>
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#FCD34D;flex-shrink:0"></span><span style="font-weight:700;color:#B45309">${Math.round(d.sinDet/(d.total||1)*100)}% sin detalle (${d.sinDet})</span></span>
+        </div>
+        <div style="font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.6px;text-transform:uppercase;margin-bottom:6px">Calidad de las ${d.filled.length} respuestas</div>
+        <div class="depth-grid">
+          <div class="depth-cell">
+            <div class="depth-val" style="color:#C2410C">${d.short}</div>
+            <div class="depth-lbl">Breves</div>
+            <div class="depth-sub">Una frase</div>
+          </div>
+          <div class="depth-cell">
+            <div class="depth-val" style="color:#B45309">${d.medium}</div>
+            <div class="depth-lbl">Desarrolladas</div>
+            <div class="depth-sub">Una idea</div>
+          </div>
+          <div class="depth-cell" style="background:#F0FDF4">
+            <div class="depth-val" style="color:#15803D">${d.long}</div>
+            <div class="depth-lbl">Con propuesta</div>
+            <div class="depth-sub">Detalladas</div>
+          </div>
+        </div>
+        <div style="height:5px;background:#F1F5F9;border-radius:3px;overflow:hidden;margin-bottom:4px">
+          <div style="height:100%;background:linear-gradient(90deg,#C2410C ${pShort}%,#B45309 ${pShort+pMed}%,#15803D 100%)"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted)">
+          <span>${pShort}% breves</span><span>${pMed}% desarrolladas</span><span style="color:#15803D;font-weight:700">${pLong}% con propuesta</span>
+        </div>
+      </div>
+      <!-- Right: numbers + insight -->
+      <div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">
+          <div style="background:#F0FDF4;border-radius:8px;padding:10px 8px;text-align:center">
+            <div style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:26px;color:#15803D;line-height:1">${d.filled.length}</div>
+            <div style="font-size:9px;color:#15803D;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-top:3px">Analizadas</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:1px">${fillPct}% del total</div>
+          </div>
+          <div style="background:#FEF2F2;border-radius:8px;padding:10px 8px;text-align:center">
+            <div style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:26px;color:#C2410C;line-height:1">${d.nulls}</div>
+            <div style="font-size:9px;color:#C2410C;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-top:3px">Sin respuesta</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:1px">${nullPct}% del total</div>
+          </div>
+          <div style="background:#FEF9C3;border-radius:8px;padding:10px 8px;text-align:center">
+            <div style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:26px;color:#B45309;line-height:1">${d.sinDet}</div>
+            <div style="font-size:9px;color:#B45309;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-top:3px">Sin detalle</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:1px">1–3 palabras</div>
+          </div>
+        </div>
+        <div class="rh-box">
+          <b>Para RH:</b> Se analizaron <b>${d.filled.length} respuestas</b> con contenido suficiente. <b>${d.sinDet}</b> de 1–3 palabras fueron excluidas.
+          El ${nullPct}% de silencio puede indicar que no perciben que sus sugerencias generen cambios.
+        </div>
+      </div>
+    </div>`;
+
+  // ── Categorías temáticas (5) ──
+  const totalCl    = d.totalClauses||1;
+  const totalColab = d.filled.length||1;
+  const maxCat = Math.max(...CATS.map(cat => d.catCounts[cat.id]||0), 1);
+
+  document.getElementById('SENT_TONE').innerHTML = `
+    <div class="sent-card-title">📋 ¿Sobre qué hablan los colaboradores?</div>
+    <p style="font-size:11px;color:var(--muted);margin-bottom:6px;line-height:1.4">
+      Cada respuesta se analiza por cláusula y se asigna a la categoría temática más relevante.
+    </p>
+    <div style="display:inline-flex;align-items:center;gap:5px;background:linear-gradient(135deg,#1E1B4B,#312E81);color:#A5B4FC;padding:3px 9px;border-radius:16px;font-size:10px;font-weight:700;letter-spacing:.4px;margin-bottom:6px">
+      ✨ Clasificación por análisis de lenguaje natural
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:14px">
+      <b style="color:var(--ink)">${d.totalClauses}</b> cláusulas · <b style="color:var(--ink)">${d.filled.length}</b> colaboradores · <b style="color:#6D28D9">${d.mixedCount}</b> con temas mezclados
+    </div>
+
+    <!-- 5 categorías: grid 2 cols, economico full-width por ser el más crítico -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+    ${CATS.map(cat => {
+      const n     = d.catCounts[cat.id]||0;
+      const colab = (d.catCollab[cat.id]||new Set()).size;
+      const pct   = Math.round(n/totalCl*100);
+      const ideas = d.catIdeas[cat.id]||[];
+      return `
+      <div style="border:1.5px solid ${cat.color}22;border-radius:10px;overflow:hidden;${cat.id==='economico'?'grid-column:1/-1':''}">
+        <div style="padding:10px 12px;background:${cat.bg}">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:5px">
+            <div style="display:flex;align-items:center;gap:6px">
+              <span style="font-size:16px">${cat.icon}</span>
+              <div>
+                <div style="font-weight:700;font-size:12px;color:${cat.color}">${cat.label}</div>
+                <div style="font-size:10px;color:var(--muted);margin-top:1px">${cat.desc}</div>
+              </div>
+            </div>
+            <div style="text-align:right;flex-shrink:0">
+              <div style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:20px;color:${cat.color};line-height:1">${pct}%</div>
+              <div style="font-size:10px;color:var(--muted)">${colab} colab.</div>
+            </div>
+          </div>
+          <div style="height:4px;background:rgba(0,0,0,.07);border-radius:2px;overflow:hidden">
+            <div style="height:100%;width:${Math.round(n/maxCat*100)}%;background:${cat.color};border-radius:2px"></div>
+          </div>
+        </div>
+        <div style="padding:8px 12px 10px;background:#fff">
+          <div style="font-size:9px;font-weight:700;color:var(--muted);letter-spacing:.6px;text-transform:uppercase;margin-bottom:6px">Ideas principales</div>
+          ${ideas.length>0 ? ideas.map((idea,ii)=>`
+            <div style="margin-bottom:7px">
+              <div style="display:flex;align-items:center;gap:5px;margin-bottom:3px">
+                <span style="width:15px;height:15px;background:${cat.color};color:#fff;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:9px;flex-shrink:0">${ii+1}</span>
+                <span style="font-weight:700;font-size:11px;color:${cat.color};flex:1">${idea.label}</span>
+                <span style="font-size:9px;color:var(--muted)">${idea.count}</span>
+              </div>
+              ${idea.examples.map(ex=>`<div style="font-size:10px;color:#374151;padding:3px 7px;border-left:2px solid ${cat.color}44;background:#FAFAFA;border-radius:0 4px 4px 0;margin-bottom:2px;line-height:1.4;word-break:break-word">"${ex}"</div>`).join('')}
+            </div>`).join('')
+          : '<div style="font-size:10px;color:var(--muted);font-style:italic">Sin ideas agrupadas.</div>'}
+        </div>
+      </div>`;
+    }).join('')}
+    </div>
+
+    <div style="margin-top:10px;background:#F8FAFC;border-radius:8px;padding:9px 12px;font-size:11px;color:var(--muted);border:1.5px solid var(--brd);line-height:1.5">
+      💡 <b style="color:var(--ink)">Para RH:</b>
+      <b style="color:#C2410C">${(d.catCollab['economico']||new Set()).size} colaboradores</b> hablan de compensación y beneficios — es la señal de mayor urgencia.
+      <b style="color:#6D28D9">${(d.catCollab['integracion']||new Set()).size} personas</b> piden más integración y recreación — la demanda más frecuente.
+    </div>`;
+
+  // ── Nube de palabras ──
+  const maxW = d.topWords[0]?.[1]||1;
+  const sizes  = [26,22,20,18,16,15,14,13,12,11];
+  const colors = ['#6D28D9','#0891B2','#15803D','#B45309','#BE185D','#0F766E','#374151'];
+  document.getElementById('SENT_WORDS').innerHTML = `
+    <div class="sent-card-title">☁️ Palabras más frecuentes <span style="font-size:11px;font-weight:400;color:var(--muted)">(top 50)</span></div>
+    <div class="word-cloud">${d.topWords.map(([w,n],i)=>{
+      const col=colors[i%colors.length];
+      return`<span class="word-tag" title="${n} menciones" style="font-size:${sizes[Math.min(Math.floor(i/5),9)]}px;color:${col};background:${col}11">
+        <span class="word-tag-w">${w}</span><span class="word-tag-n">${n}</span>
+      </span>`;
+    }).join('')}</div>`;
+}
+
+
+function downloadCSV(){
+  const rows = getSentFiltered();
+  if(!rows){ alert('Primero carga los datos.'); return; }
+  if(typeof XLSX === 'undefined'){ alert('SheetJS aún no cargó. Intenta en un momento.'); return; }
+
+  const allFill = rows.filter(r => r._txt);
+  const filled  = allFill.filter(r => wordCount(r._txt) >= MIN_WORDS);
+  const sinDetR = allFill.filter(r => wordCount(r._txt) < MIN_WORDS);
+  const regLabel = {todas:'Adelca Total', Milagro:'Milagro', Aloag:'Aloag', otras:'Otras Regionales'}[sentFilter];
+  const fecha = new Date().toLocaleDateString('es-EC');
+
+  // ── Clasificación por respuesta ──
+  const propuestaK = ['implementar','propongo','sugiero','crear','organizar','realizar','sería bueno','sería ideal','podrían','debería','podría','taller','actividad','campaña','programa','proyecto','iniciativa'];
+  const economicosK2 = ['prima','primas','sueldo','sueldos','remuner','bono','bonos','aumento','alza de'];
+  const quejaK = ['falta','faltan','nunca','no dan','no hay','injusto','desigual','no se cumple','deuda','olvidan','no recibimos','no nos dan','no tenemos','no existe','incumpl'];
+  const getTipoClause = txt => {
+    const tl = (txt||'').toLowerCase();
+    if(economicosK2.some(k=>tl.includes(k))) return 'Queja / Necesidad insatisfecha';
+    if(quejaK.some(k=>tl.includes(k)))       return 'Queja / Necesidad insatisfecha';
+    return 'Propuesta';
+  };
+
+
+  const total      = rows.length;
+  const respPct    = Math.round(filled.length/total*100);
+  const propCount  = filled.filter(r=>getTipoClause(r._txt)==='Propuesta').length;
+  const quejaCount = filled.filter(r=>getTipoClause(r._txt)==='Queja / Necesidad insatisfecha').length;
+  const aspirCount = filled.filter(r=>getTipoClause(r._txt)==='Aspiración').length;
+
+  const wb = XLSX.utils.book_new();
+
+  // ════════════════════════════════════
+  // HOJA 1: RESUMEN
+  // ════════════════════════════════════
+  const resumenData = [
+    ['REPORTE DE SALARIO EMOCIONAL', ''],
+    ['Regional', regLabel],
+    ['Fecha', fecha],
+    ['', ''],
+    ['INDICADORES DE PARTICIPACIÓN', ''],
+    ['Total registros', total],
+    ['Respondieron', filled.length],
+    ['% de participación', (respPct/100)],
+    ['Sin respuesta (vacías)', total - allFill.length],
+    ['% sin respuesta', ((total-allFill.length)/total)],
+    ['Sin detalle suficiente (1-3 palabras)', sinDetR.length],
+    ['% sin detalle', (sinDetR.length/total)],
+    ['', ''],
+    ['TIPO DE SOLICITUD', ''],
+    ['Propuestas', propCount],
+    ['% del total de respuestas', (propCount/filled.length)],
+    ['Quejas / Necesidades insatisfechas', quejaCount],
+    ['% del total de respuestas', (quejaCount/filled.length)],
+    ['Aspiraciones', aspirCount],
+    ['% del total de respuestas', (aspirCount/filled.length)],
+  ];
+  const wsRes = XLSX.utils.aoa_to_sheet(resumenData);
+
+  // Ancho de columnas en resumen
+  wsRes['!cols'] = [{wch:38},{wch:20}];
+
+  // Formato % en columnas B
+  ['B8','B10','B12','B14','B16','B18','B20'].forEach(cell => {
+    if(wsRes[cell]) wsRes[cell].z = '0.0%';
+  });
+
+  XLSX.utils.book_append_sheet(wb, wsRes, 'Resumen');
+
+  // ════════════════════════════════════
+  // HOJA 2: REGISTROS (tabla formateada)
+  // ════════════════════════════════════
+  const headers = ['N°', 'Regional / Localidad', 'Sugerencia emocional'];
+  const dataRows = [
+    ...filled.map((r, i) => [i+1, r._loc||'Sin localidad', r._txt]),
+    ...sinDetR.map((r, i) => [filled.length+i+1, r._loc||'Sin localidad', '(Sin detalle suficiente) '+r._txt])
+  ];
+
+  const wsData = XLSX.utils.aoa_to_sheet([headers, ...dataRows]);
+
+  // Column widths
+  wsData['!cols'] = [{wch:6}, {wch:22}, {wch:80}];
+
+  // Wrap text on comment column
+  const range = XLSX.utils.decode_range(wsData['!ref']);
+  for(let R = 1; R <= range.e.r; R++){
+    const cell = XLSX.utils.encode_cell({r:R, c:3});
+    if(wsData[cell]){
+      if(!wsData[cell].s) wsData[cell].s = {};
+      wsData[cell].s.alignment = {wrapText: true, vertical: 'top'};
+    }
+  }
+
+  // Define as Excel table
+  wsData['!autofilter'] = {ref: wsData['!ref']};
+
+  XLSX.utils.book_append_sheet(wb, wsData, 'Registros');
+
+  // ── Descarga ──
+  const fname = 'SalarioEmocional_' + regLabel.replace(/ /g,'_') + '_' + new Date().toISOString().slice(0,10) + '.xlsx';
+  XLSX.writeFile(wb, fname);
+}
+</script></body>
+</html>
