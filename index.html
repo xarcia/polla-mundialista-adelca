@@ -823,6 +823,197 @@ html, body {
   white-space: normal;
 }
 
+/* ══════════════════════════════════════════════════════
+   RANKING PÚBLICO — Podio + Tabla
+   ══════════════════════════════════════════════════════ */
+/* ══ Barra de pestañas (Mi Pronóstico / Ranking) ══ */
+.app-tabs{display:flex;gap:8px;margin:14px 14px 0;padding:5px;background:var(--gh);border-radius:14px;border:1px solid var(--brd)}
+.app-tab{flex:1;text-align:center;padding:11px 10px;border-radius:10px;font-size:13px;font-weight:800;color:var(--mid);cursor:pointer;transition:.15s;user-select:none}
+.app-tab:active{transform:scale(.97)}
+.app-tab.app-tab-a{background:var(--red);color:#fff;box-shadow:0 2px 8px rgba(227,6,19,.3)}
+
+/* ══ Tarjetas de partidos (Final / Tercer puesto) ══ */
+.rk-match-card{margin:14px 14px 0;background:var(--wh);border-radius:16px;overflow:hidden;box-shadow:0 2px 14px rgba(0,0,0,.06);border:1px solid var(--brd)}
+.rk-match-head{text-align:center;padding:12px 14px 8px;font-size:12px;font-weight:900;color:var(--red);text-transform:uppercase;letter-spacing:1px}
+.rk-match-sub{text-align:center;font-size:10.5px;color:var(--muted);font-weight:700;margin-top:-4px;padding-bottom:8px}
+.rk-match-row{display:flex;align-items:center;justify-content:space-between;padding:6px 18px 18px;gap:8px}
+.rk-match-team{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;min-width:0}
+.rk-match-flag{font-size:34px;line-height:1}
+.rk-match-name{font-size:12px;font-weight:800;color:var(--ink);text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+.rk-match-score{font-size:26px;font-weight:900;font-family:'Barlow Condensed',sans-serif;color:var(--ink);background:var(--gh);border-radius:10px;padding:4px 14px;flex-shrink:0;letter-spacing:1px}
+.rk-match-empty{margin:14px 14px 0;padding:18px;text-align:center;color:var(--muted);font-size:12.5px;font-weight:600;background:var(--gh);border-radius:14px}
+
+.rk-section{margin:18px 14px 24px;background:var(--wh);border-radius:16px;overflow:hidden;box-shadow:0 2px 14px rgba(0,0,0,.06);border:1px solid var(--brd)}
+.rk-head{background:var(--red);padding:18px 20px 14px;position:relative;overflow:hidden}
+.rk-head-deco{position:absolute;bottom:-16px;right:-6px;font-size:90px;opacity:.10;line-height:1;pointer-events:none;user-select:none}
+.rk-head-ey{font-size:10px;font-weight:800;color:rgba(255,255,255,.65);letter-spacing:2.5px;margin-bottom:4px;position:relative;z-index:1}
+.rk-head-ti{font-size:21px;font-weight:900;color:#fff;line-height:1.2;position:relative;z-index:1}
+.rk-head-su{font-size:12px;color:rgba(255,255,255,.78);margin-top:3px;font-weight:600;position:relative;z-index:1}
+
+.rk-tabs{display:flex;gap:6px;padding:12px 14px;overflow-x:auto;background:var(--gh);border-bottom:1px solid var(--brd)}
+.rk-tab{flex:1;min-width:70px;text-align:center;padding:9px 8px;border-radius:10px;font-size:11.5px;font-weight:800;color:var(--mid);background:var(--wh);border:1.5px solid var(--brd);cursor:pointer;transition:.15s;white-space:nowrap}
+.rk-tab:active{transform:scale(.96)}
+.rk-tab.rk-tab-a{background:var(--red);border-color:var(--red);color:#fff}
+
+.rk-loading{padding:40px 20px;text-align:center;color:var(--muted);font-size:13px;font-weight:600}
+.rk-loading .spin2{display:inline-block;width:22px;height:22px;border:3px solid var(--brd);border-top-color:var(--red);border-radius:50%;animation:spin 0.8s linear infinite;margin-bottom:10px}
+.rk-empty{padding:36px 20px;text-align:center;color:var(--muted);font-size:13px;font-weight:600}
+
+/* ── PODIO ── */
+.rk-podio-wrap{padding:22px 16px 8px;display:flex;align-items:flex-end;justify-content:center;gap:8px;min-height:210px}
+.rk-p-slot{display:flex;flex-direction:column;align-items:center;width:24%;max-width:112px;opacity:0;transform:translateY(30px);animation:rkPopIn .55s cubic-bezier(.34,1.56,.64,1) forwards}
+.rk-p-slot.s2{animation-delay:.05s}
+.rk-p-slot.s1{animation-delay:.22s}
+.rk-p-slot.s3{animation-delay:.05s}
+.rk-p-slot.s4{animation-delay:.35s}
+@keyframes rkPopIn{to{opacity:1;transform:translateY(0)}}
+.rk-p-medal{font-size:26px;margin-bottom:4px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.25));animation:rkFloat 2.6s ease-in-out infinite}
+.rk-p-slot.s2 .rk-p-medal{animation-delay:.3s}
+.rk-p-slot.s3 .rk-p-medal{animation-delay:.6s}
+.rk-p-slot.s4 .rk-p-medal{animation-delay:.9s}
+@keyframes rkFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.rk-p-name{font-size:10px;font-weight:800;color:var(--ink);text-align:center;line-height:1.22;max-width:100%;overflow-wrap:break-word;word-break:break-word;white-space:normal;margin-bottom:2px;padding:0 2px}
+.rk-p-loc{font-size:8.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px}
+.rk-p-pts{font-size:13px;font-weight:900;color:#fff;margin-bottom:6px;padding:2px 10px;border-radius:20px}
+.rk-p-bar{width:100%;border-radius:10px 10px 0 0;display:flex;align-items:flex-start;justify-content:center;padding-top:6px;position:relative;overflow:hidden}
+.rk-p-bar::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,0) 60%)}
+.rk-p-bar-num{font-size:20px;font-weight:900;color:rgba(0,0,0,.28);position:relative;z-index:1}
+
+.rk-p-slot.s1 .rk-p-bar{height:96px;background:linear-gradient(160deg,#FFE066,#FFC400 55%,#E0A500)}
+.rk-p-slot.s1 .rk-p-pts{background:#B8860B}
+.rk-p-slot.s2 .rk-p-bar{height:74px;background:linear-gradient(160deg,#F1F3F6,#C8CDD4 55%,#A6ACB5)}
+.rk-p-slot.s2 .rk-p-pts{background:#6E7580}
+.rk-p-slot.s3 .rk-p-bar{height:56px;background:linear-gradient(160deg,#E3A468,#CD7F32 55%,#A6641F)}
+.rk-p-slot.s3 .rk-p-pts{background:#8B5A20}
+.rk-p-slot.s4 .rk-p-bar{height:40px;background:linear-gradient(160deg,#FF9466,#C1440E 55%,#7A2508)}
+.rk-p-slot.s4 .rk-p-pts{background:#6B2311}
+
+.rk-p-avatar{position:relative;width:44px;height:44px;border-radius:50%;background:var(--gh);border:2.5px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.18);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:var(--red);margin-bottom:6px;overflow:hidden}
+.rk-p-avatar::before{content:'';position:absolute;inset:-40%;background:conic-gradient(from 0deg,transparent 0deg,rgba(255,255,255,.7) 35deg,transparent 80deg,transparent 360deg);animation:rkAvatarSpin 3.4s linear infinite;z-index:1}
+.rk-p-avatar-ini{position:relative;z-index:2}
+.rk-p-slot{perspective:600px}
+@keyframes rkAvatarSpin{to{transform:rotate(360deg)}}
+.rk-p-slot.s1 .rk-p-avatar{width:52px;height:52px;font-size:18px;border-color:#FFD100}
+.rk-p-slot.s1 .rk-p-avatar::before{animation-duration:2.6s;background:conic-gradient(from 0deg,transparent 0deg,rgba(255,255,255,.9) 35deg,transparent 80deg,transparent 360deg)}
+
+.rk-podio-empty{padding:30px 20px;text-align:center;color:var(--muted);font-size:12.5px;font-weight:600}
+
+/* ── TABLA TOP 10 ── */
+.rk-tbl-wrap{padding:6px 14px 16px}
+.rk-tbl-title{font-size:10.5px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin:10px 2px 8px;display:flex;align-items:center;gap:6px}
+.rk-row2{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;margin-bottom:5px;background:var(--gh);border:1px solid transparent;transition:.15s}
+.rk-row2.me{background:var(--red-soft);border-color:rgba(227,6,19,.35)}
+.rk-row2.top3{background:#FFF8EA;border-color:#F0D060}
+.rk-r2-pos{width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:900;color:var(--mid);background:#fff;flex-shrink:0;border:1.5px solid var(--brd)}
+.rk-r2-pos.g1{background:#FFD100;color:#5A3E00;border-color:#E0A500}
+.rk-r2-pos.g2{background:#DCE1E6;color:#4A4F55;border-color:#B8BCC4}
+.rk-r2-pos.g3{background:#E3A468;color:#5A340F;border-color:#CD7F32}
+.rk-r2-name{flex:1;min-width:0}
+.rk-r2-name b{display:block;font-size:12.5px;font-weight:800;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rk-r2-name span{font-size:9.5px;color:var(--muted);font-weight:700}
+.rk-r2-pts{font-size:14px;font-weight:900;color:var(--red);flex-shrink:0;padding:3px 10px;background:#fff;border-radius:20px;border:1.5px solid var(--brd)}
+.rk-row2.me .rk-r2-pts{background:var(--red);color:#fff;border-color:var(--red)}
+
+.rk-me-card{margin-top:10px;padding:12px 14px;background:linear-gradient(135deg,var(--red),#B8050F);border-radius:12px;display:flex;align-items:center;gap:12px;box-shadow:0 4px 14px rgba(227,6,19,.25);cursor:pointer}
+.rk-me-card:active{transform:scale(.98)}
+.rk-me-chev{width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;background:rgba(255,255,255,.22);border-radius:50%;flex-shrink:0;transition:transform .2s}
+.rk-me-card.open .rk-me-chev{transform:rotate(180deg);background:rgba(255,255,255,.4)}
+.rk-me-pos{width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;color:#fff;flex-shrink:0}
+.rk-me-info{flex:1;min-width:0}
+.rk-me-info b{display:block;font-size:12.5px;font-weight:800;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rk-me-info span{font-size:10px;color:rgba(255,255,255,.75);font-weight:700}
+.rk-me-pts{font-size:16px;font-weight:900;color:#fff;flex-shrink:0}
+.rk-find-box{padding:10px 14px 4px}
+.rk-find-inp{width:100%;padding:10px 12px;border-radius:10px;border:1.5px solid var(--brd);font-size:13px;font-weight:700;font-family:inherit}
+.rk-refresh{display:flex;align-items:center;justify-content:center;gap:6px;padding:9px;margin:0 14px 14px;border-radius:10px;background:var(--gh);border:1.5px solid var(--brd);font-size:11.5px;font-weight:800;color:var(--mid);cursor:pointer}
+.rk-refresh:active{transform:scale(.97)}
+
+/* ── Detalle de puntos (click en fila / podio) ── */
+.rk-row2{cursor:pointer}
+.rk-row2:active{transform:scale(.99)}
+.rk-r2-chev{width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--red);background:var(--red-soft);border-radius:50%;margin-left:4px;transition:transform .2s;flex-shrink:0}
+.rk-row2.open .rk-r2-chev{transform:rotate(180deg);background:var(--red);color:#fff}
+.rk-p-slot{cursor:pointer}
+.rk-p-slot:active{transform:scale(.97)}
+
+.rk-detail{margin:0 0 6px;padding:12px;background:#fff;border:1.5px solid var(--brd);border-radius:10px;animation:rkPopIn .25s ease forwards}
+.rk-detail-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.rk-detail-name{font-size:12.5px;font-weight:900;color:var(--ink)}
+.rk-detail-total{font-size:13px;font-weight:900;color:var(--red);background:var(--red-soft);padding:2px 10px;border-radius:20px}
+.rk-detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px}
+.rk-detail-card{background:var(--gh);border-radius:9px;padding:9px 10px}
+.rk-detail-title{font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;color:var(--muted)}
+
+.rk-detail-row{display:block;border-radius:8px;padding:6px 8px;margin-bottom:4px;border-left:3px solid var(--brd);background:#fff}
+.rk-detail-row.rk-dr-ok{border-left-color:#0B7A3B;background:#F3FBF6}
+.rk-detail-row.rk-dr-miss{border-left-color:#E3A5AC;background:#FCF6F6}
+.rk-dr-top{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:3px}
+.rk-detail-lbl{color:var(--mid);font-weight:800;font-size:10.5px;flex-shrink:0}
+.rk-detail-pts{font-weight:900;font-size:10.5px;flex-shrink:0}
+.rk-detail-pts.ok{color:#0B7A3B}
+.rk-detail-pts.miss{color:#B0362E}
+.rk-dr-compare{display:flex;align-items:center;gap:6px}
+.rk-dr-side{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.rk-dr-side b{font-size:11.5px;font-weight:800;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rk-dr-tag{font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--muted)}
+.rk-dr-ic{font-size:12px;flex-shrink:0}
+
+.rk-podio-detail-wrap{padding:0 14px}
+.rk-podio-notice{margin:0 14px 14px;padding:9px 12px;background:#FFF8E1;border:1px solid #F0D060;border-radius:10px;font-size:10.5px;font-weight:700;color:#8A6200;line-height:1.4;text-align:center}
+
+@media(min-width:640px){
+  .rk-podio-wrap{gap:14px;min-height:230px}
+  .rk-p-slot{max-width:130px}
+}
+
+/* ══════════════════════════════════════════════════════
+   PODIO — efectos "de campeón": barrido de luz + confeti + brillo
+   ══════════════════════════════════════════════════════ */
+.rk-podio-stage{position:relative;overflow:hidden;border-radius:14px;background:radial-gradient(ellipse at 50% 100%,rgba(255,209,0,.14),transparent 65%),linear-gradient(180deg,#FFFDF6,var(--wh) 55%)}
+.rk-podio-confetti-cv{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
+.rk-podio-wrap{position:relative;z-index:2}
+
+.rk-p-bar{position:relative;overflow:hidden}
+.rk-p-bar::before{content:'';position:absolute;top:0;left:-60%;width:45%;height:100%;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.85),transparent);
+  transform:skewX(-18deg);animation:rkSweep 2.6s ease-in-out infinite;z-index:2}
+.rk-p-slot.s2 .rk-p-bar::before{animation-delay:.5s}
+.rk-p-slot.s3 .rk-p-bar::before{animation-delay:1s}
+.rk-p-slot.s4 .rk-p-bar::before{animation-delay:1.5s}
+@keyframes rkSweep{0%{left:-60%}55%,100%{left:130%}}
+
+.rk-p-slot.s1{position:relative}
+.rk-p-crown{font-size:20px;margin-bottom:-2px;filter:drop-shadow(0 2px 3px rgba(184,134,11,.5));animation:rkCrownBob 2s ease-in-out infinite}
+@keyframes rkCrownBob{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-3px) rotate(4deg)}}
+
+.rk-p-slot.s1 .rk-p-avatar{box-shadow:0 0 0 3px #fff,0 0 0 6px #FFD100,0 4px 16px rgba(255,209,0,.55);animation:rkGoldPulse 1.8s ease-in-out infinite}
+@keyframes rkGoldPulse{0%,100%{box-shadow:0 0 0 3px #fff,0 0 0 6px #FFD100,0 4px 16px rgba(255,209,0,.5)}50%{box-shadow:0 0 0 3px #fff,0 0 0 9px #FFE566,0 4px 26px rgba(255,209,0,.85)}}
+
+.rk-p-slot.s1 .rk-p-name{font-size:12px}
+.rk-p-slot.s1 .rk-p-pts{font-size:15px;padding:3px 14px;box-shadow:0 3px 10px rgba(184,134,11,.4)}
+.rk-p-slot.s1 .rk-p-bar{background:linear-gradient(160deg,#FFF0B0,#FFC400 45%,#C98A00);box-shadow:inset 0 2px 8px rgba(255,255,255,.5),0 -2px 14px rgba(255,193,7,.35)}
+.rk-p-slot.s1 .rk-p-medal{font-size:32px;animation:rkFloat 2.6s ease-in-out infinite,rkMedalGlow 1.8s ease-in-out infinite}
+@keyframes rkMedalGlow{0%,100%{filter:drop-shadow(0 2px 3px rgba(0,0,0,.25)) drop-shadow(0 0 0 rgba(255,209,0,0))}50%{filter:drop-shadow(0 2px 3px rgba(0,0,0,.25)) drop-shadow(0 0 10px rgba(255,209,0,.85))}}
+
+/* sparkles alrededor del campeón */
+.rk-p-slot.s1 .rk-p-sp{position:absolute;top:-6px;left:50%;width:1px;height:1px;pointer-events:none}
+.rk-p-sp i{position:absolute;font-size:11px;color:#FFD100;animation:rkSparkle 1.6s ease-in-out infinite;opacity:0}
+@keyframes rkSparkle{0%{opacity:0;transform:translate(0,0) scale(.4)}50%{opacity:1}100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(1)}}
+
+/* ══════════════════════════════════════════════════════
+   RANKING HUB — pantalla final (principal + resumen al lado)
+   ══════════════════════════════════════════════════════ */
+.p5-hub{display:flex;flex-direction:column;gap:16px;width:100%}
+.p5-hub-rank{order:1}
+.p5-hub-summary{order:2}
+.p5-hub-summary-title{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:1.2px;margin:2px 2px 10px}
+.p5-hub-summary-title span{height:1px;flex:1;background:var(--brd)}
+
+@media(min-width:900px){
+  .p5-hub{display:grid;grid-template-columns:1.35fr 1fr;align-items:start;gap:20px}
+  .p5-hub-rank{order:0}
+  .p5-hub-summary{order:0;position:sticky;top:14px}
+}
 </style>
 </head>
 <!-- ══ SUPABASE REST — fetch directo (schema: mil) ═════════════════════════════ -->
@@ -991,6 +1182,12 @@ html, body {
   <div style="background:#fff;line-height:0;font-size:0"><div class="ec-stripe-lg"></div></div>
 </div>
 
+<div class="app-tabs" id="APP_TABS" style="display:none">
+  <div class="app-tab app-tab-a" data-apptab="flow" onclick="switchAppTab('flow')">📝 Mi Pronóstico</div>
+  <div class="app-tab" data-apptab="ranking" onclick="switchAppTab('ranking')">🏆 Ranking</div>
+</div>
+
+<div id="FLOW_TAB_CONTENT">
 <div class="main-grid">
   <div class="form-col">
     <div id="MC"></div>
@@ -1028,15 +1225,19 @@ html, body {
               <div style="display:flex;justify-content:space-between"><span>Quiz 2do intento</span><span style="color:var(--ink)">2 pts</span></div>
               <div style="display:flex;justify-content:space-between"><span>Quiz 3er intento</span><span style="color:var(--ink)">1 pt</span></div>
               <div style="height:1px;background:var(--brd);margin:3px 0"></div>
-              <div style="display:flex;justify-content:space-between"><span>Resultado partido</span><span style="color:var(--ink)">1 pt</span></div>
-              <div style="display:flex;justify-content:space-between"><span>Goles exactos</span><span style="color:var(--ink)">1+1 pt</span></div>
-              <div style="display:flex;justify-content:space-between"><span>Marcador exacto bonus</span><span style="color:var(--ink)">+1 pt</span></div>
+              <div style="display:flex;justify-content:space-between"><span>Gol exacto Campeón</span><span style="color:var(--ink)">1 pt</span></div>
+              <div style="display:flex;justify-content:space-between"><span>Gol exacto Subcampeón</span><span style="color:var(--ink)">1 pt</span></div>
+              <div style="display:flex;justify-content:space-between"><span>Gol exacto 3ero</span><span style="color:var(--ink)">1 pt</span></div>
+              <div style="display:flex;justify-content:space-between"><span>Gol exacto 4to</span><span style="color:var(--ink)">1 pt</span></div>
+              <div style="height:1px;background:var(--brd);margin:3px 0"></div>
+              <div style="display:flex;justify-content:space-between"><span>Bono por cada puesto exacto acertado</span><span style="color:var(--ink)">1 pt c/u</span></div>
               <div style="height:1px;background:var(--brd);margin:3px 0"></div>
               <div style="display:flex;justify-content:space-between"><span>Top4 Campeón</span><span style="color:#B8860B">4 pts</span></div>
               <div style="display:flex;justify-content:space-between"><span>Top4 Subcampeón</span><span style="color:#888">3 pts</span></div>
               <div style="display:flex;justify-content:space-between"><span>Top4 3°</span><span style="color:#8B5E2A">2 pts</span></div>
               <div style="display:flex;justify-content:space-between"><span>Top4 4°</span><span style="color:var(--mid)">1 pt</span></div>
             </div>
+            <div style="margin-top:8px;padding-top:8px;border-top:1px dashed var(--brd);font-size:10px;color:var(--muted);font-weight:600;line-height:1.4">🔑 En caso de empate en puntaje total, se revisa en orden: 1° ¿acertó el Campeón? 2° ¿acertó el Subcampeón? 3° ¿acertó el 3ero? 4° ¿acertó el 4to? Solo si sigue empate, se compara quién acertó más goles exactos.</div>
           </div>
           <div style="background:#FFF8EA;border-radius:10px;padding:10px 12px;border:1px solid #F0D060">
             <div style="font-size:10px;font-weight:900;color:#8A6200;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Zonas ganadoras</div>
@@ -1051,6 +1252,29 @@ html, body {
     </div>
   </div><!-- /side-col -->
 </div><!-- /main-grid -->
+</div><!-- /FLOW_TAB_CONTENT -->
+
+<!-- ══ PESTAÑA RANKING (solo visible al identificarse) ══ -->
+<div id="RANKING_TAB_CONTENT" style="display:none">
+  <div id="RK_MATCHES"></div>
+  <div class="rk-section" id="RK_SECTION">
+    <div class="rk-head">
+      <div class="rk-head-deco">🏆</div>
+      <div class="rk-head-ey">CLASIFICACIÓN GENERAL</div>
+      <div class="rk-head-ti">Ranking de la Polla</div>
+      <div class="rk-head-su" id="RK_SUB">Cargando resultados y puntajes…</div>
+    </div>
+    <div class="rk-tabs" id="RK_TABS" data-mount="tab">
+      <div class="rk-tab rk-tab-a" data-z="todas">Todas</div>
+      <div class="rk-tab" data-z="Aloag">ALOAG</div>
+      <div class="rk-tab" data-z="Milagro">MILAGRO</div>
+      <div class="rk-tab" data-z="otras">Otras</div>
+    </div>
+    <div id="RK_BODY">
+      <div class="rk-loading"><div class="spin2"></div><div>Cargando ranking…</div></div>
+    </div>
+  </div>
+</div>
 
 <!-- MODAL BIENVENIDA -->
 <div class="modal-overlay" id="MODAL">
@@ -1336,6 +1560,8 @@ function render(){
   else if(cur===2){mc.innerHTML=P3();b3();}
   else if(cur===3){mc.innerHTML=P4();b4();}
   else{mc.innerHTML=P5();confetti();}
+  showAppTabsIfIdentified();
+  if(typeof RK_LOADED!=='undefined'&&RK_LOADED&&RK_RESULTS&&appTab==='ranking')rkRender('tab',RK_MOUNTS.tab.filter);
 }
 
 /* ── ICONS ── */
@@ -2112,10 +2338,448 @@ function confetti(){
   },200);
 }
 
+/* ══════════════════════════════════════════════════════
+   RANKING PÚBLICO — misma lógica de puntaje que admin.html
+   ══════════════════════════════════════════════════════ */
+let RK_DATA=[], RK_RESULTS=null, RK_LOADED=false;
+let RK_MOUNTS={
+  tab:{bodyId:'RK_BODY',tabsId:'RK_TABS',filter:'todas',featured:true}
+};
+
+/* ── Pestañas de la app: Mi Pronóstico / Ranking ── */
+let appTab='flow';
+function showAppTabsIfIdentified(){
+  var bar=document.getElementById('APP_TABS');
+  if(!bar)return;
+  if(fd&&fd.emp){
+    if(bar.style.display==='none'){bar.style.display='flex';}
+  } else {
+    bar.style.display='none';
+  }
+}
+function switchAppTab(tab){
+  appTab=tab;
+  var flow=document.getElementById('FLOW_TAB_CONTENT');
+  var rank=document.getElementById('RANKING_TAB_CONTENT');
+  var bar=document.getElementById('APP_TABS');
+  if(bar)bar.querySelectorAll('.app-tab').forEach(function(b){b.classList.toggle('app-tab-a',b.dataset.apptab===tab);});
+  if(tab==='ranking'){
+    if(flow)flow.style.display='none';
+    if(rank)rank.style.display='block';
+    window.scrollTo({top:0,behavior:'smooth'});
+    if(RK_LOADED&&RK_RESULTS){rkRenderMatches();rkRender('tab',RK_MOUNTS.tab.filter);}
+  } else {
+    if(rank)rank.style.display='none';
+    if(flow)flow.style.display='block';
+  }
+}
+
+function rkGetRegional(loc){
+  if(!loc)return'otras';
+  var l=loc.toLowerCase();
+  if(l.includes('milagro'))return'Milagro';
+  if(l.includes('aloag'))return'Aloag';
+  return'otras';
+}
+function rkGetResultado(gl,gv){
+  if(gl==null||gv==null||gl===''||gv==='')return null;
+  var a=parseInt(gl),b=parseInt(gv);
+  return a>b?'L':a<b?'V':'E';
+}
+function rkCalcScore(reg,res){
+  var ok1=reg.top4_1_pais===res.p1, ok2=reg.top4_2_pais===res.p2,
+      ok3=reg.top4_3_pais===res.p3, ok4=reg.top4_4_pais===res.p4;
+  var pts1=ok1?4:0, pts2=ok2?3:0, pts3=ok3?2:0, pts4=ok4?1:0;
+
+  // Bonus: acierto de gol exacto por posición (Campeón, Subcampeón, 3ero, 4to).
+  // No se pide local/visita en el formulario, así que no hay bono de "llaves"
+  // (cruces de finalistas). El gol de cada posición SÍ importa: además de sumar
+  // puntos, funciona como criterio de desempate (golesCount = cuántos de los 4
+  // acertó) — a igual puntaje total, gana quien acertó más de estos 4 goles.
+  var bG1=(parseInt(reg.top4_1_goles_local)===parseInt(res.g1l))?1:0;
+  var bG2=(parseInt(reg.top4_1_goles_visita)===parseInt(res.g1v))?1:0;
+  var bG3=(parseInt(reg.top4_3_goles_local)===parseInt(res.g3l))?1:0;
+  var bG4=(parseInt(reg.top4_3_goles_visita)===parseInt(res.g3v))?1:0;
+  var golesCount=bG1+bG2+bG3+bG4;
+
+  // Bonus: cantidad de PUESTOS EXACTOS acertados (no importa cuáles, solo cuántos
+  // de los 4 —Campeón/Subcampeón/3ero/4to— coinciden exactamente con la realidad).
+  // Ej: si acertó 3 de los 4 puestos exactos, +3 pt de bono, independiente de si
+  // esos 3 aciertos ya suman puntos por posición (4/3/2/1). Esto hace que quienes
+  // acertaron más puestos en total queden mejor ubicados en el ranking.
+  var aciertosPuestos=(ok1?1:0)+(ok2?1:0)+(ok3?1:0)+(ok4?1:0);
+  var ptsAciertosPuestos=aciertosPuestos; // 1 pt por puesto exacto acertado, máx 4
+
+  var bonusTotal=golesCount+ptsAciertosPuestos;
+
+  var q1ok=!!reg.quiz_q1_aprobado, q2ok=!!reg.quiz_q2_aprobado;
+  var q1at=reg.quiz_q1_intentos||0, q2at=reg.quiz_q2_intentos||0;
+  var ptsQ1=q1ok?(q1at===1?3:q1at===2?2:1):0;
+  var ptsQ2=q2ok?(q2at===1?3:q2at===2?2:1):0;
+  var ptsQuiz=ptsQ1+ptsQ2;
+
+  return{
+    codigo:String(reg.colaborador_codigo).trim(),
+    ok1:ok1,ok2:ok2,ok3:ok3,ok4:ok4,pts1:pts1,pts2:pts2,pts3:pts3,pts4:pts4,
+    bG1:bG1,bG2:bG2,bG3:bG3,bG4:bG4,golesCount:golesCount,
+    aciertosPuestos:aciertosPuestos,ptsAciertosPuestos:ptsAciertosPuestos,bonusTotal:bonusTotal,
+    q1ok:q1ok,q2ok:q2ok,q1at:q1at,q2at:q2at,ptsQ1:ptsQ1,ptsQ2:ptsQ2,ptsQuiz:ptsQuiz,
+    total:pts1+pts2+pts3+pts4+bonusTotal+ptsQuiz,
+    pred1:reg.top4_1_pais,pred2:reg.top4_2_pais,pred3:reg.top4_3_pais,pred4:reg.top4_4_pais,
+    predG1L:reg.top4_1_goles_local,predG1V:reg.top4_1_goles_visita,
+    predG3L:reg.top4_3_goles_local,predG3V:reg.top4_3_goles_visita
+  };
+}
+function rkIni(nombre){
+  var p=(nombre||'').trim().split(/\s+/);
+  return((p[0]||'?')[0]+(p[1]?p[1][0]:'')).toUpperCase();
+}
+
+function rkFlag(country){
+  var s=SL.find(function(x){return x.n===country;});
+  return s?s.f:'🏳️';
+}
+
+function rkRenderMatches(){
+  var el=document.getElementById('RK_MATCHES');
+  if(!el)return;
+  if(!RK_RESULTS){
+    el.innerHTML='<div class="rk-match-empty">🕒 Los resultados oficiales aún no han sido publicados.</div>';
+    return;
+  }
+  var r=RK_RESULTS;
+  function matchCard(title,sub,teamA,teamB,golA,golB){
+    return '<div class="rk-match-card">'
+      +'<div class="rk-match-head">'+title+'</div>'
+      +(sub?'<div class="rk-match-sub">'+sub+'</div>':'')
+      +'<div class="rk-match-row">'
+        +'<div class="rk-match-team"><div class="rk-match-flag">'+rkFlag(teamA)+'</div><div class="rk-match-name">'+(teamA||'—')+'</div></div>'
+        +'<div class="rk-match-score">'+(golA??'—')+' - '+(golB??'—')+'</div>'
+        +'<div class="rk-match-team"><div class="rk-match-flag">'+rkFlag(teamB)+'</div><div class="rk-match-name">'+(teamB||'—')+'</div></div>'
+      +'</div></div>';
+  }
+  el.innerHTML=matchCard('🏆 Final','Campeón vs Subcampeón',r.p1,r.p2,r.g1l,r.g1v)
+    +matchCard('🥉 Tercer puesto','3ero vs 4to',r.p3,r.p4,r.g3l,r.g3v);
+}
+
+function rkSafeId(s){return String(s).replace(/[^a-zA-Z0-9_-]/g,'_');}
+function rkFindEntry(codigo){
+  return RK_DATA.find(function(d){return d.codigo===codigo||d.codigo===String(parseInt(codigo,10));});
+}
+
+function rkDetailHtml(r){
+  if(!r||!RK_RESULTS)return '<div class="rk-detail">Sin datos.</div>';
+  var sr=RK_RESULTS;
+  function row(lbl,pred,real,ok,pts){
+    return '<div class="rk-detail-row '+(ok?'rk-dr-ok':'rk-dr-miss')+'">'
+      +'<div class="rk-dr-top"><span class="rk-detail-lbl">'+lbl+'</span><span class="rk-detail-pts '+(ok?'ok':'miss')+'">'+(ok?'+'+pts+' pt':'0 pt')+'</span></div>'
+      +'<div class="rk-dr-compare">'
+        +'<div class="rk-dr-side"><span class="rk-dr-tag">Pronosticó</span><b>'+(pred===0?'0':(pred||'—'))+'</b></div>'
+        +'<div class="rk-dr-ic">'+(ok?'✅':'❌')+'</div>'
+        +'<div class="rk-dr-side"><span class="rk-dr-tag">Real</span><b>'+(real??'—')+'</b></div>'
+      +'</div></div>';
+  }
+  var posCard='<div class="rk-detail-card"><div class="rk-detail-title" style="color:#15803D">🏆 Posiciones</div>'
+    +row('🥇 Campeón',r.pred1,sr.p1,r.ok1,r.pts1)
+    +row('🥈 2do',r.pred2,sr.p2,r.ok2,r.pts2)
+    +row('🥉 3ro',r.pred3,sr.p3,r.ok3,r.pts3)
+    +row('4to',r.pred4,sr.p4,r.ok4,r.pts4)
+    +'</div>';
+  var aciertosCard='<div class="rk-detail-card"><div class="rk-detail-title" style="color:#B8860B">🎯 Aciertos de puesto</div>'
+    +'<div class="rk-detail-row '+(r.aciertosPuestos>0?'rk-dr-ok':'rk-dr-miss')+'">'
+      +'<div class="rk-dr-top"><span class="rk-detail-lbl">Acertaste '+r.aciertosPuestos+' de 4 puestos</span><span class="rk-detail-pts '+(r.aciertosPuestos>0?'ok':'miss')+'">+'+r.ptsAciertosPuestos+' pt</span></div>'
+      +'<div class="rk-dr-compare"><div class="rk-dr-side"><span class="rk-dr-tag">1 pt por cada puesto exacto acertado (Campeón, Subcampeón, 3ero, 4to)</span></div></div>'
+    +'</div></div>';
+  var golesCard='<div class="rk-detail-card"><div class="rk-detail-title" style="color:#92400E">⚽ Acierto de gol <span style="text-transform:none;font-weight:600;color:#B08420">· desempate: '+r.golesCount+'/4</span></div>'
+    +row('Goles Campeón',r.predG1L,sr.g1l,r.bG1===1,1)
+    +row('Goles Subcampeón',r.predG1V,sr.g1v,r.bG2===1,1)
+    +row('Goles 3ero',r.predG3L,sr.g3l,r.bG3===1,1)
+    +row('Goles 4to',r.predG3V,sr.g3v,r.bG4===1,1)
+    +'</div>';
+  var quizCard='<div class="rk-detail-card"><div class="rk-detail-title" style="color:#6D28D9">🧠 Quiz Adelca</div>'
+    +'<div class="rk-detail-row '+(r.q1ok?'rk-dr-ok':'rk-dr-miss')+'"><div class="rk-dr-top"><span class="rk-detail-lbl">Pregunta 1</span><span class="rk-detail-pts '+(r.q1ok?'ok':'miss')+'">'+(r.q1ok?'+'+r.ptsQ1+' pt':'0 pt')+'</span></div><div class="rk-dr-compare"><div class="rk-dr-side"><b>'+(r.q1ok?(r.q1at===1?'1er intento':r.q1at===2?'2do intento':'3er intento'):'No aprobó')+'</b></div></div></div>'
+    +'<div class="rk-detail-row '+(r.q2ok?'rk-dr-ok':'rk-dr-miss')+'"><div class="rk-dr-top"><span class="rk-detail-lbl">Pregunta 2</span><span class="rk-detail-pts '+(r.q2ok?'ok':'miss')+'">'+(r.q2ok?'+'+r.ptsQ2+' pt':'0 pt')+'</span></div><div class="rk-dr-compare"><div class="rk-dr-side"><b>'+(r.q2ok?(r.q2at===1?'1er intento':r.q2at===2?'2do intento':'3er intento'):'No aprobó')+'</b></div></div></div>'
+    +'<div class="rk-dr-top" style="border-top:1.5px solid var(--brd);margin-top:2px;padding-top:6px"><span class="rk-detail-lbl" style="font-weight:800">Total quiz</span><span class="rk-detail-pts ok">+'+r.ptsQuiz+' pt</span></div>'
+    +'</div>';
+  return '<div class="rk-detail"><div class="rk-detail-head"><span class="rk-detail-name">'+(r.nombre||r.codigo)+'</span><span class="rk-detail-total">'+r.total+' pts totales</span></div>'
+    +'<div class="rk-detail-grid">'+posCard+aciertosCard+golesCard+quizCard+'</div></div>';
+}
+
+function rkToggleRowDetail(rowEl,detId,codigo){
+  var det=document.getElementById(detId);
+  if(!det)return;
+  var isOpen=det.style.display==='block';
+  if(isOpen){det.style.display='none';det.innerHTML='';rowEl.classList.remove('open');return;}
+  det.innerHTML=rkDetailHtml(rkFindEntry(codigo));
+  det.style.display='block';
+  rowEl.classList.add('open');
+}
+
+function rkTogglePodioDetail(mountKey,codigo){
+  var wrap=document.getElementById('rkpodiodet_'+mountKey);
+  if(!wrap)return;
+  if(wrap.dataset.cur===codigo){
+    wrap.innerHTML='';wrap.style.display='none';wrap.dataset.cur='';return;
+  }
+  wrap.innerHTML=rkDetailHtml(rkFindEntry(codigo));
+  wrap.style.display='block';
+  wrap.dataset.cur=codigo;
+}
+
+async function rkLoadData(){
+  var sub=document.getElementById('RK_SUB');
+  try{
+    var cfg=await sbGet('db_pmundial_config?id=eq.resultados_2026&select=*');
+    if(!cfg.ok||!cfg.data||!cfg.data.length||!cfg.data[0].p1_campeon){
+      RK_RESULTS=null;
+      rkSetEmptyMsg('🕒 El ranking se activará cuando Adelca publique los resultados oficiales del Mundial.');
+      rkRenderMatches();
+      if(sub)sub.textContent='Aún no hay resultados oficiales publicados';
+      return;
+    }
+    var row=cfg.data[0];
+    RK_RESULTS={p1:row.p1_campeon,p2:row.p2_subcampeon,p3:row.p3_tercero,p4:row.p4_cuarto,
+                g1l:row.final_goles_local,g1v:row.final_goles_visita,
+                g3l:row.tercer_goles_local,g3v:row.tercer_goles_visita};
+
+    var registros=[],rOff=0;
+    while(true){
+      var rReg=await sbGet('db_pmundial_registros?select=*&order=colaborador_codigo.asc&limit=1000&offset='+rOff);
+      if(!rReg.ok)throw new Error('registros '+rReg.status);
+      var batch=rReg.data||[];
+      registros=registros.concat(batch);
+      if(batch.length<1000)break;
+      rOff+=1000;
+    }
+
+    var usrRows=[],uOff=0;
+    while(true){
+      var rUsr=await sbGet('db_pmundial_usuarios?select=codigo,nombre,apellido,localidad,departamento&order=codigo.asc&limit=1000&offset='+uOff);
+      if(!rUsr.ok)throw new Error('usuarios '+rUsr.status);
+      var batchU=rUsr.data||[];
+      usrRows=usrRows.concat(batchU);
+      if(batchU.length<1000)break;
+      uOff+=1000;
+    }
+
+    var usrMap={};
+    usrRows.forEach(function(u){
+      var raw=String(u.codigo).trim();
+      var num=String(parseInt(raw,10));
+      [raw,raw.toLowerCase(),num,raw.padStart(4,'0'),raw.padStart(3,'0'),raw.replace(/^0+/,'')].forEach(function(k){
+        if(k)usrMap[k]=u;
+      });
+    });
+
+    RK_DATA=registros.map(function(reg){
+      var raw=String(reg.colaborador_codigo).trim();
+      var usr=usrMap[raw]||usrMap[raw.toLowerCase()]||usrMap[String(parseInt(raw,10))]
+             ||usrMap[raw.padStart(4,'0')]||usrMap[raw.padStart(3,'0')]||usrMap[raw.replace(/^0+/,'')]||null;
+      var score=rkCalcScore(reg,RK_RESULTS);
+      var fullName=usr?((usr.nombre||'')+' '+(usr.apellido||'')).trim():'';
+      score.nombre=fullName||('Colaborador '+score.codigo);
+      score.localidad=usr?(usr.localidad||''):'';
+      score.regional=rkGetRegional(usr?usr.localidad:'');
+      return score;
+    });
+
+    RK_DATA.sort(function(a,b){return b.total-a.total||(b.ok1-a.ok1)||(b.ok2-a.ok2)||(b.ok3-a.ok3)||(b.ok4-a.ok4)||b.golesCount-a.golesCount||b.ptsQuiz-a.ptsQuiz||a.codigo.localeCompare(b.codigo);});
+
+    RK_LOADED=true;
+    if(sub)sub.textContent='Actualizado · '+RK_DATA.length+' participantes';
+    rkRenderMatches();
+    Object.keys(RK_MOUNTS).forEach(function(key){
+      if(document.getElementById(RK_MOUNTS[key].bodyId)) rkRender(key, RK_MOUNTS[key].filter);
+    });
+  }catch(e){
+    console.error('rkLoadData:',e);
+    rkSetEmptyMsg('⚠️ No se pudo cargar el ranking. <br><span style="text-decoration:underline;cursor:pointer" onclick="rkLoadData()">Reintentar</span>');
+    if(sub)sub.textContent='Error al cargar';
+  }
+}
+
+function rkSetEmptyMsg(html){
+  Object.keys(RK_MOUNTS).forEach(function(key){
+    var el=document.getElementById(RK_MOUNTS[key].bodyId);
+    if(el)el.innerHTML='<div class="rk-empty">'+html+'</div>';
+  });
+}
+
+function rkListFor(filter){
+  if(filter==='todas')return RK_DATA;
+  if(filter==='otras')return RK_DATA.filter(function(r){return r.regional==='otras';});
+  return RK_DATA.filter(function(r){return r.regional===filter;});
+}
+
+function rkRender(mountKey, filter){
+  var m=RK_MOUNTS[mountKey];
+  if(!m)return;
+  m.filter=filter;
+  var tabsEl=document.getElementById(m.tabsId);
+  if(tabsEl)tabsEl.querySelectorAll('.rk-tab').forEach(function(t){
+    t.classList.toggle('rk-tab-a', t.dataset.z===filter);
+  });
+  var body=document.getElementById(m.bodyId);
+  if(!body)return;
+  if(!RK_RESULTS){return;}
+  var list=rkListFor(filter);
+  if(!list.length){
+    body.innerHTML='<div class="rk-empty">Aún no hay pronósticos registrados en esta zona.</div>';
+    return;
+  }
+
+  // recalcular posiciones dentro del filtro — secuencial estricto (1,2,3,4… sin saltos, el desempate ya viene del sort)
+  var sorted=list.slice().sort(function(a,b){return b.total-a.total||(b.ok1-a.ok1)||(b.ok2-a.ok2)||(b.ok3-a.ok3)||(b.ok4-a.ok4)||b.golesCount-a.golesCount||b.ptsQuiz-a.ptsQuiz||a.codigo.localeCompare(b.codigo);});
+  var pos=[];
+  sorted.forEach(function(r,i){
+    pos[i]=i+1;
+  });
+
+  var myCode=(fd&&fd.cod)?String(fd.cod).trim():null;
+  var myIdx=myCode?sorted.findIndex(function(r){return r.codigo===myCode||r.codigo===String(parseInt(myCode,10));}):-1;
+
+  // ── PODIO top 4 (con efectos "de campeón") ──
+  var podioOrder=[1,0,2,3]; // visual: 2do,1ro,3ro,4to
+  var medals=['🥈','🥇','🥉','🏅'];
+  var slotCls=['s2','s1','s3','s4'];
+  var cvId='cv_'+mountKey;
+  var podioDetId='rkpodiodet_'+mountKey;
+  var stageOpen='<div class="rk-podio-stage"><canvas class="rk-podio-confetti-cv" id="'+cvId+'"></canvas>';
+  var podioHtml=stageOpen+'<div class="rk-podio-wrap">';
+  if(sorted.length<1){
+    podioHtml=stageOpen+'<div class="rk-podio-empty">Sin datos suficientes para el podio.</div></div>';
+  } else {
+    podioOrder.forEach(function(oi,si){
+      var r=sorted[oi];
+      if(!r){podioHtml+='<div class="rk-p-slot '+slotCls[si]+'"></div>';return;}
+      var crown=si===1?'<div class="rk-p-crown">👑</div>':'';
+      var sparkles=si===1?'<div class="rk-p-sp">'+[0,1,2,3,4].map(function(k){
+        var ang=(k/5)*Math.PI*2, tx=(Math.cos(ang)*34).toFixed(0), ty=(Math.sin(ang)*30-14).toFixed(0);
+        return '<i style="left:0;top:0;--tx:'+tx+'px;--ty:'+ty+'px;animation-delay:'+(k*.32)+'s">✦</i>';
+      }).join('')+'</div>':'';
+      podioHtml+='<div class="rk-p-slot '+slotCls[si]+'" onclick="rkTogglePodioDetail(\''+mountKey+'\',\''+r.codigo+'\')">'
+        +crown+sparkles
+        +'<div class="rk-p-medal">'+medals[si]+'</div>'
+        +'<div class="rk-p-avatar"><span class="rk-p-avatar-ini">'+rkIni(r.nombre)+'</span></div>'
+        +'<div class="rk-p-name" title="'+r.nombre+'">'+r.nombre+'</div>'
+        +'<div class="rk-p-loc">'+(r.localidad||'—')+'</div>'
+        +'<div class="rk-p-pts">'+r.total+' pts</div>'
+        +'<div class="rk-p-bar"><div class="rk-p-bar-num">'+(oi+1)+'</div></div>'
+        +'</div>';
+    });
+    podioHtml+='</div></div>';
+  }
+  podioHtml+='<div class="rk-podio-detail-wrap" id="'+podioDetId+'" style="display:none"></div>';
+  if(sorted.length>=1){
+    podioHtml+='<div class="rk-podio-notice">⚠️ Esta información es de forma predeterminada para gestionar los premios y sus lugares. En caso de empates, acercarse a Gestión Humana.</div>';
+  }
+
+  // ── TOP 10 ──
+  var top10=sorted.slice(0,10);
+  var tblHtml='<div class="rk-tbl-wrap"><div class="rk-tbl-title">📋 Top 10'+(filter!=='todas'?' — '+({Aloag:'ALOAG',Milagro:'MILAGRO',otras:'Otras'}[filter]||''):'')+' <span style="font-weight:600;text-transform:none;letter-spacing:0">· toca una fila para ver el detalle</span></div>';
+  top10.forEach(function(r,i){
+    var p=pos[i];
+    var posCls=p===1?'g1':p===2?'g2':p===3?'g3':'';
+    var isMe=myCode&&(r.codigo===myCode||r.codigo===String(parseInt(myCode,10)));
+    var rowId='rkrow_'+mountKey+'_'+rkSafeId(r.codigo);
+    var detId='rkrowdet_'+mountKey+'_'+rkSafeId(r.codigo);
+    tblHtml+='<div class="rk-row2'+(isMe?' me':'')+(p<=3?' top3':'')+'" id="'+rowId+'" onclick="rkToggleRowDetail(this,\''+detId+'\',\''+r.codigo+'\')">'
+      +'<div class="rk-r2-pos '+posCls+'">'+p+'</div>'
+      +'<div class="rk-r2-name"><b>'+r.nombre+(isMe?' <span style="color:var(--red)">(Tú)</span>':'')+'</b><span>'+(r.localidad||'—')+'</span></div>'
+      +'<div class="rk-r2-pts">'+r.total+'</div>'
+      +'<span class="rk-r2-chev">▾</span>'
+      +'</div>'
+      +'<div id="'+detId+'" style="display:none"></div>';
+  });
+  tblHtml+='</div>';
+
+  // ── Tarjeta "tu posición" si el usuario está identificado y fuera del Top 10 ──
+  var meHtml='';
+  if(myCode){
+    if(myIdx>=0 && myIdx>=10){
+      var mr=sorted[myIdx];
+      var meDetId='rkmedet_'+mountKey;
+      meHtml='<div style="padding:0 14px 14px"><div class="rk-me-card" onclick="rkToggleRowDetail(this,\''+meDetId+'\',\''+mr.codigo+'\')">'
+        +'<div class="rk-me-pos">#'+pos[myIdx]+'</div>'
+        +'<div class="rk-me-info"><b>'+mr.nombre+'</b><span>Tu posición'+(filter!=='todas'?' en esta zona':' general')+'</span></div>'
+        +'<div class="rk-me-pts">'+mr.total+' pts</div>'
+        +'<span class="rk-me-chev">▾</span>'
+        +'</div><div id="'+meDetId+'" style="display:none"></div></div>';
+    } else if(myIdx<0){
+      meHtml='<div style="padding:0 14px 14px"><div class="rk-me-card" style="background:linear-gradient(135deg,var(--mid),#5A5F66)">'
+        +'<div class="rk-me-info"><b>Aún no tienes pronóstico registrado</b><span>Regístrate para aparecer en el ranking</span></div>'
+        +'</div></div>';
+    }
+  }
+
+  body.innerHTML=podioHtml+tblHtml+meHtml
+    +'<div class="rk-refresh" onclick="rkLoadData()">🔄 Actualizar ranking</div>';
+
+  var cv=document.getElementById(cvId);
+  if(cv)rkStartConfettiLoop(cv);
+}
+
+/* ── Confeti en bucle infinito sobre el podio ── */
+var _rkConfettiLoops={};
+function rkStartConfettiLoop(canvas){
+  var id=canvas.id;
+  if(_rkConfettiLoops[id]){cancelAnimationFrame(_rkConfettiLoops[id].raf);}
+  var ctx=canvas.getContext('2d');
+  var COLS=['#FFD100','#FFE566','#FFFFFF','#E30613','#00D4FF','#22c55e','#FF9A3C'];
+  function size(){
+    var wrap=canvas.parentElement;
+    canvas.width=wrap.offsetWidth||300;
+    canvas.height=wrap.offsetHeight||200;
+  }
+  size();
+  var W=canvas.width,H=canvas.height;
+  var N=Math.max(18,Math.round(W/14));
+  function mk(){return{
+    x:Math.random()*W,y:-10-Math.random()*H,
+    w:3+Math.random()*5,h:2+Math.random()*4,
+    rot:Math.random()*Math.PI*2,dr:(Math.random()-.5)*.1,
+    vy:.4+Math.random()*.9,vx:(Math.random()-.5)*.5,
+    col:COLS[Math.floor(Math.random()*COLS.length)],
+    shape:Math.random()<.35?'circle':'rect'
+  };}
+  var parts=Array.from({length:N},mk);
+  var loop={raf:0,resizeObs:null};
+  function frame(){
+    W=canvas.width;H=canvas.height;
+    ctx.clearRect(0,0,W,H);
+    parts.forEach(function(p,i){
+      p.x+=p.vx;p.y+=p.vy;p.rot+=p.dr;
+      if(p.y>H+10){parts[i]=mk();parts[i].y=-10;}
+      ctx.save();ctx.globalAlpha=.85;ctx.fillStyle=p.col;
+      ctx.translate(p.x,p.y);ctx.rotate(p.rot);
+      if(p.shape==='circle'){ctx.beginPath();ctx.arc(0,0,p.w/2,0,Math.PI*2);ctx.fill();}
+      else ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
+      ctx.restore();
+    });
+    loop.raf=requestAnimationFrame(frame);
+  }
+  frame();
+  _rkConfettiLoops[id]=loop;
+}
+
+document.addEventListener('click',function(e){
+  var t=e.target.closest('.rk-tab');
+  if(!t)return;
+  var tabs=t.closest('.rk-tabs');
+  if(!tabs)return;
+  var mountKey=tabs.dataset.mount||'main';
+  if(RK_LOADED&&RK_RESULTS)rkRender(mountKey,t.dataset.z);
+  else{
+    RK_MOUNTS[mountKey].filter=t.dataset.z;
+    tabs.querySelectorAll('.rk-tab').forEach(function(x){x.classList.toggle('rk-tab-a',x===t);});
+  }
+});
+
 /* ── INIT ── */
 initSlider();
 rSR();
 render();
+rkLoadData();
 
 var PAISES=SL.map(function(s){return [s.f,s.n];});
 var _pcRAF=null;
