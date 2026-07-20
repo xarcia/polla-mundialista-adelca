@@ -694,6 +694,14 @@ function calcScore(reg,res){
   const bG4=(parseInt(reg.top4_3_goles_visita)===parseInt(res.g3v))?1:0;
   const golesCount=bG1+bG2+bG3+bG4;
 
+  // Desempate fino: qué tan cerca quedó del marcador real en ambos partidos
+  // (Final y Tercer puesto). Menor diferencia = más cerca del resultado real.
+  const diffG1L=Math.abs((parseInt(reg.top4_1_goles_local)||0)-(parseInt(res.g1l)||0));
+  const diffG1V=Math.abs((parseInt(reg.top4_1_goles_visita)||0)-(parseInt(res.g1v)||0));
+  const diffG3L=Math.abs((parseInt(reg.top4_3_goles_local)||0)-(parseInt(res.g3l)||0));
+  const diffG3V=Math.abs((parseInt(reg.top4_3_goles_visita)||0)-(parseInt(res.g3v)||0));
+  const diffMarcador=diffG1L+diffG1V+diffG3L+diffG3V;
+
   // Bonus: cantidad de PUESTOS EXACTOS acertados (no importa cuáles, solo cuántos
   // de los 4 —Campeón/Subcampeón/3ero/4to— coinciden exactamente con la realidad).
   // Esto hace que quienes acertaron más puestos en total queden mejor ubicados.
@@ -712,7 +720,7 @@ function calcScore(reg,res){
   return{
     codigo:String(reg.colaborador_codigo).trim(),
     ok1,ok2,ok3,ok4,pts1,pts2,pts3,pts4,
-    bG1,bG2,bG3,bG4,golesCount,
+    bG1,bG2,bG3,bG4,golesCount,diffMarcador,
     aciertosPuestos,ptsAciertosPuestos,bonusTotal,
     q1ok,q2ok,q1at,q2at,ptsQ1,ptsQ2,ptsQuiz,
     total:pts1+pts2+pts3+pts4+bonusTotal+ptsQuiz,
@@ -787,7 +795,7 @@ async function calcRanking(){
       return score;
     });
 
-    rankingData.sort((a,b)=>b.total-a.total||(b.ok1-a.ok1)||(b.ok2-a.ok2)||(b.ok3-a.ok3)||(b.ok4-a.ok4)||b.golesCount-a.golesCount||b.ptsQuiz-a.ptsQuiz||a.codigo.localeCompare(b.codigo));
+    rankingData.sort((a,b)=>b.total-a.total||(b.ok1-a.ok1)||(b.ok2-a.ok2)||(b.ok3-a.ok3)||(b.ok4-a.ok4)||b.golesCount-a.golesCount||(a.diffMarcador-b.diffMarcador)||b.ptsQuiz-a.ptsQuiz||a.codigo.localeCompare(b.codigo));
     rankingData.forEach((r,i)=>{
       if(i>0&&rankingData[i-1].total===r.total) r.pos=rankingData[i-1].pos;
       else r.pos=i+1;
@@ -907,7 +915,7 @@ function renderRanking(filter){
     :filter==='otras'?rankingData.filter(r=>r.regional==='otras')
     :rankingData.filter(r=>r.regional===filter);
 
-  const sorted=[...list].sort((a,b)=>b.total-a.total||(b.ok1-a.ok1)||(b.ok2-a.ok2)||(b.ok3-a.ok3)||(b.ok4-a.ok4)||b.golesCount-a.golesCount||b.ptsQuiz-a.ptsQuiz||a.codigo.localeCompare(b.codigo));
+  const sorted=[...list].sort((a,b)=>b.total-a.total||(b.ok1-a.ok1)||(b.ok2-a.ok2)||(b.ok3-a.ok3)||(b.ok4-a.ok4)||b.golesCount-a.golesCount||(a.diffMarcador-b.diffMarcador)||b.ptsQuiz-a.ptsQuiz||a.codigo.localeCompare(b.codigo));
   const posMap={};
   sorted.forEach((r,i)=>{ posMap[r.codigo]=i+1; });
 
@@ -976,7 +984,7 @@ function renderRanking(filter){
     // ── Expand detail ──
     const detail=`<div class="rk-exp-inner"><div class="exp-grid">
       <div class="exp-card">
-        <div class="exp-title" style="color:#15803D">🏆 Posiciones <span style="text-transform:none;font-weight:600;color:#B8860B">· Acertaste ${r.aciertosPuestos}, recibes +${r.ptsAciertosPuestos}pt</span></div>
+        <div class="exp-title" style="color:#15803D">🏆 Posiciones</div>
         ${[['🥇 Campeón',r.pred1,sr.p1,r.ok1,r.pts1,'ok'],['🥈 2do',r.pred2,sr.p2,r.ok2,r.pts2,'ok'],
            ['🥉 3ro',r.pred3,sr.p3,r.ok3,r.pts3,'ok'],['4to',r.pred4,sr.p4,r.ok4,r.pts4,'ok']]
           .map(([lbl,pred,real,ok,pts,type])=>`<div class="exp-row">
@@ -984,6 +992,14 @@ function renderRanking(filter){
             <span class="exp-val">${fl(pred||'')} ${pred||'—'} <span style="color:#94A3B8;font-size:10px">real: ${fl(real||'')} ${real}</span></span>
             <span class="exp-pts ${ok?'ep-ok':'ep-miss'}">${ok?'+'+pts+' pt':'✗'}</span>
           </div>`).join('')}
+      </div>
+      <div class="exp-card">
+        <div class="exp-title" style="color:#B8860B">🎯 Aciertos de puesto</div>
+        <div class="exp-row">
+          <span class="exp-lbl">Acertaste ${r.aciertosPuestos} de 4 puestos</span>
+          <span class="exp-val" style="font-size:10px;color:#94A3B8">1 pt por cada puesto exacto</span>
+          <span class="exp-pts ${r.aciertosPuestos>0?'ep-bon':'ep-miss'}">+${r.ptsAciertosPuestos} pt</span>
+        </div>
       </div>
       <div class="exp-card">
         <div class="exp-title" style="color:#92400E">⚽ Acierto de gol</div>
@@ -1047,7 +1063,8 @@ function renderRanking(filter){
           <div class="tt-num">${r.total}</div>
           <div class="tt-sub">${[
             (r.pts1+r.pts2+r.pts3+r.pts4)>0?'pos '+(r.pts1+r.pts2+r.pts3+r.pts4):'',
-            r.bonusTotal>0?'+'+r.bonusTotal+'b':'',
+            r.ptsAciertosPuestos>0?'+'+r.ptsAciertosPuestos+'a':'',
+            r.golesCount>0?'+'+r.golesCount+'g':'',
             r.ptsQuiz>0?'+'+r.ptsQuiz+'q':''
           ].filter(Boolean).join(' ')}</div>
         </div>
