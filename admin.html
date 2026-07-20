@@ -683,16 +683,24 @@ function calcScore(reg,res){
         ok3=reg.top4_3_pais===res.p3, ok4=reg.top4_4_pais===res.p4;
   const pts1=ok1?4:0, pts2=ok2?3:0, pts3=ok3?2:0, pts4=ok4?1:0;
 
-  // Bonus final
-  const bG1L=(parseInt(reg.top4_1_goles_local)===parseInt(res.g1l))?1:0;
-  const bG1V=(parseInt(reg.top4_1_goles_visita)===parseInt(res.g1v))?1:0;
-  const bR1=(getResultado(reg.top4_1_goles_local,reg.top4_1_goles_visita)===getResultado(res.g1l,res.g1v)&&getResultado(res.g1l,res.g1v)!==null)?1:0;
+  // Bonus: acierto de gol exacto por posición (Campeón, Subcampeón, 3ero, 4to).
+  // No se pide local/visita en el formulario, así que no hay bono de "llaves"
+  // (cruces de finalistas). El gol de cada posición SÍ importa: además de sumar
+  // puntos, funciona como criterio de desempate (golesCount = cuántos de los 4
+  // acertó) — a igual puntaje total, gana quien acertó más de estos 4 goles.
+  const bG1=(parseInt(reg.top4_1_goles_local)===parseInt(res.g1l))?1:0;
+  const bG2=(parseInt(reg.top4_1_goles_visita)===parseInt(res.g1v))?1:0;
+  const bG3=(parseInt(reg.top4_3_goles_local)===parseInt(res.g3l))?1:0;
+  const bG4=(parseInt(reg.top4_3_goles_visita)===parseInt(res.g3v))?1:0;
+  const golesCount=bG1+bG2+bG3+bG4;
 
-  // Bonus 3°/4°
-  const bG3L=(parseInt(reg.top4_3_goles_local)===parseInt(res.g3l))?1:0;
-  const bG3V=(parseInt(reg.top4_3_goles_visita)===parseInt(res.g3v))?1:0;
-  const bR3=(getResultado(reg.top4_3_goles_local,reg.top4_3_goles_visita)===getResultado(res.g3l,res.g3v)&&getResultado(res.g3l,res.g3v)!==null)?1:0;
-  const bonusTotal=bG1L+bG1V+bR1+bG3L+bG3V+bR3;
+  // Bonus: cantidad de PUESTOS EXACTOS acertados (no importa cuáles, solo cuántos
+  // de los 4 —Campeón/Subcampeón/3ero/4to— coinciden exactamente con la realidad).
+  // Esto hace que quienes acertaron más puestos en total queden mejor ubicados.
+  const aciertosPuestos=(ok1?1:0)+(ok2?1:0)+(ok3?1:0)+(ok4?1:0);
+  const ptsAciertosPuestos=aciertosPuestos; // 1 pt por puesto exacto acertado, máx 4
+
+  const bonusTotal=golesCount+ptsAciertosPuestos;
 
   // Quiz por intentos
   const q1ok=!!reg.quiz_q1_aprobado, q2ok=!!reg.quiz_q2_aprobado;
@@ -704,7 +712,8 @@ function calcScore(reg,res){
   return{
     codigo:String(reg.colaborador_codigo).trim(),
     ok1,ok2,ok3,ok4,pts1,pts2,pts3,pts4,
-    bG1L,bG1V,bR1,bG3L,bG3V,bR3,bonusTotal,
+    bG1,bG2,bG3,bG4,golesCount,
+    aciertosPuestos,ptsAciertosPuestos,bonusTotal,
     q1ok,q2ok,q1at,q2at,ptsQ1,ptsQ2,ptsQuiz,
     total:pts1+pts2+pts3+pts4+bonusTotal+ptsQuiz,
     pos:0,
@@ -778,7 +787,7 @@ async function calcRanking(){
       return score;
     });
 
-    rankingData.sort((a,b)=>b.total-a.total||b.ptsQuiz-a.ptsQuiz||a.codigo.localeCompare(b.codigo));
+    rankingData.sort((a,b)=>b.total-a.total||(b.ok1-a.ok1)||(b.ok2-a.ok2)||(b.ok3-a.ok3)||(b.ok4-a.ok4)||b.golesCount-a.golesCount||b.ptsQuiz-a.ptsQuiz||a.codigo.localeCompare(b.codigo));
     rankingData.forEach((r,i)=>{
       if(i>0&&rankingData[i-1].total===r.total) r.pos=rankingData[i-1].pos;
       else r.pos=i+1;
@@ -824,8 +833,8 @@ function renderResultBar(){
 }
 
 function injectColgroup(showReg){
-  // col widths: #, cod, nom, [reg], p1,p2,p3,p4, sc-fin,res-fin, sc-34,res-34, q1,q2, total
-  const cols=[44,72,170,...(showReg?[96]:[]),72,72,72,72,96,80,96,80,84,84,80];
+  // col widths: #, cod, nom, [reg], p1,p2,p3,p4 (países), acp (aciertos de puesto), g1,g2,g3,g4 (goles), q1,q2, total
+  const cols=[44,72,170,...(showReg?[96]:[]),72,72,72,72,120,74,74,74,74,84,84,80];
   const tbl=document.getElementById('RK_TABLE');
   if(!tbl)return;
   const ex=tbl.querySelector('colgroup');
@@ -840,8 +849,8 @@ function renderTableHeader(showReg){
   document.getElementById('RK_GROUPS').innerHTML=`
     <th class="rk-gth gth-id" colspan="${idSpan}">Identificación</th>
     <th class="rk-gth gth-pos" colspan="4">🏆 Posición — 10 pts máx</th>
-    <th class="rk-gth gth-fin" colspan="2">⚽ Final</th>
-    <th class="rk-gth gth-34" colspan="2">🥉 3°/4°</th>
+    <th class="rk-gth gth-34" colspan="1">🎯 Bono (desempate)</th>
+    <th class="rk-gth gth-fin" colspan="4">⚽ Acierto de gol — 4 pts máx (desempate)</th>
     <th class="rk-gth gth-quiz" colspan="2">🧠 Quiz — 6 pts máx</th>
     <th class="rk-gth gth-tot">Total</th>`;
 
@@ -854,10 +863,11 @@ function renderTableHeader(showReg){
     <th class="rk-th" style="background:#F0FDF4">🥈 2do</th>
     <th class="rk-th" style="background:#F0FDF4">🥉 3ro</th>
     <th class="rk-th" style="background:#F0FDF4">4to</th>
-    <th class="rk-th bl" style="background:#FFFBEB">Marcador</th>
-    <th class="rk-th" style="background:#FFFBEB">Ganador</th>
-    <th class="rk-th bl" style="background:#FFFBEB">Marcador</th>
-    <th class="rk-th" style="background:#FFFBEB">Ganador</th>
+    <th class="rk-th bl" style="background:#FFF8E1">Aciertos de puesto</th>
+    <th class="rk-th bl" style="background:#FFFBEB">Gol Campeón</th>
+    <th class="rk-th" style="background:#FFFBEB">Gol Subcamp.</th>
+    <th class="rk-th" style="background:#FFFBEB">Gol 3ero</th>
+    <th class="rk-th" style="background:#FFFBEB">Gol 4to</th>
     <th class="rk-th bl" style="background:#F5F3FF">Q1</th>
     <th class="rk-th" style="background:#F5F3FF">Q2</th>
     <th class="rk-th bl">Total</th>`;
@@ -869,7 +879,6 @@ function renderResultBar(){
   const bar=document.getElementById('RESULT_BAR');
   if(!savedResults||!savedResults.p1){bar.style.display='none';return;}
   const r=savedResults;
-  const rl={L:'Local gana',V:'Visita gana',E:'Empate'};
   bar.style.display='flex';
   bar.innerHTML=`
     <span class="result-bar-title">Resultados →</span>
@@ -878,8 +887,8 @@ function renderResultBar(){
     <div class="rbi"><span class="rbi-pos">3°</span><span class="rbi-val">${fl(r.p3)} ${r.p3}</span><span class="rbi-score">2pt</span></div>
     <div class="rbi"><span class="rbi-pos">4°</span><span class="rbi-val">${fl(r.p4)} ${r.p4}</span><span class="rbi-score">1pt</span></div>
     <div class="rbi-sep"></div>
-    <div class="rbi"><span class="rbi-pos">Final</span><span class="rbi-val">${r.g1l}–${r.g1v}</span><span class="rbi-score">${rl[getResultado(r.g1l,r.g1v)]||'?'}</span></div>
-    <div class="rbi"><span class="rbi-pos">3°/4°</span><span class="rbi-val">${r.g3l}–${r.g3v}</span><span class="rbi-score">${rl[getResultado(r.g3l,r.g3v)]||'?'}</span></div>`;
+    <div class="rbi"><span class="rbi-pos">Goles</span><span class="rbi-val">${fl(r.p1)} ${r.g1l} · ${fl(r.p2)} ${r.g1v}</span></div>
+    <div class="rbi"><span class="rbi-pos">Goles</span><span class="rbi-val">${fl(r.p3)} ${r.g3l} · ${fl(r.p4)} ${r.g3v}</span></div>`;
 }
 
 function renderRanking(filter){
@@ -898,12 +907,9 @@ function renderRanking(filter){
     :filter==='otras'?rankingData.filter(r=>r.regional==='otras')
     :rankingData.filter(r=>r.regional===filter);
 
-  const sorted=[...list].sort((a,b)=>b.total-a.total||b.ptsQuiz-a.ptsQuiz||a.codigo.localeCompare(b.codigo));
+  const sorted=[...list].sort((a,b)=>b.total-a.total||(b.ok1-a.ok1)||(b.ok2-a.ok2)||(b.ok3-a.ok3)||(b.ok4-a.ok4)||b.golesCount-a.golesCount||b.ptsQuiz-a.ptsQuiz||a.codigo.localeCompare(b.codigo));
   const posMap={};
-  sorted.forEach((r,i)=>{
-    if(i>0&&sorted[i-1].total===r.total) posMap[r.codigo]=posMap[sorted[i-1].codigo];
-    else posMap[r.codigo]=i+1;
-  });
+  sorted.forEach((r,i)=>{ posMap[r.codigo]=i+1; });
 
   // Stats
   document.getElementById('RANKING_STATS').style.display='grid';
@@ -920,8 +926,6 @@ function renderRanking(filter){
   const chips={'Milagro':'<span class="chip chip-m">Milagro</span>','Aloag':'<span class="chip chip-a">Aloag</span>','otras':'<span class="chip chip-o">Otras</span>'};
   const posG=p=>p===1?'g1':p===2?'g2':p===3?'g3':'';
   const rowBg=p=>p===1?'rk-top1':p===3?'rk-top3':'';
-  const rl={L:'Local',V:'Visita',E:'Empate'};
-  const ri={L:'⚔️',V:'🏃',E:'🤝'};
   const sr=savedResults;
   const totalCols=14+(showReg?1:0);
 
@@ -935,28 +939,23 @@ function renderRanking(filter){
       </div>
     </td>`;
 
-  const scoreC=(okL,okV,pL,pV,rL,rV,bg)=>{
-    const any=okL||okV, pts=(okL?1:0)+(okV?1:0);
-    return`<td class="rk-td bl" style="background:${bg};height:72px">
-      <div class="td-score">
-        <div class="ts-pred ${any?'ok':'miss'}">${pL??'?'}–${pV??'?'}</div>
-        <div class="ts-real">real: ${rL??'?'}–${rV??'?'}</div>
-        <div class="ts-pts ${any?'ok':'miss'}">${pts===2?'✓✓ +2pt':pts===1?'✓ +1pt':'✗'}</div>
+  const aciertosC=(count,pts,bg)=>`
+    <td class="rk-td${bg?' bl':''}" style="${bg?'background:'+bg:''}height:72px">
+      <div class="td-quiz">
+        <div class="tq-circle ${count>0?'ok':'miss'}" style="font-size:12px">${count}/4</div>
+        <div class="tq-try" style="white-space:nowrap">Acertaste ${count} puesto${count===1?'':'s'}</div>
+        <div class="tq-pts ${count>0?'ok':'miss'}" style="white-space:nowrap">${count>0?'recibes +'+pts+'pt':'0pt'}</div>
       </div>
     </td>`;
-  };
 
-  const resC=(ok,pGL,pGV,rGL,rGV,bg)=>{
-    const pR=getResultado(pGL,pGV), rR=getResultado(rGL,rGV);
-    return`<td class="rk-td" style="background:${bg};height:72px">
-      <div class="td-res">
-        <div class="tr-icon">${ri[pR]||'?'}</div>
-        <div class="tr-lbl ${ok?'ok':'miss'}">${rl[pR]||'?'}</div>
-        <div class="tr-real">real: ${rl[rR]||'?'}</div>
-        <div class="tr-pts ${ok?'ok':'miss'}">${ok?'✓ +1pt':'✗'}</div>
+  const golC=(ok,pred,real,bg)=>`
+    <td class="rk-td${bg?' bl':''}" style="${bg?'background:'+bg:''}height:72px">
+      <div class="td-score">
+        <div class="ts-pred ${ok?'ok':'miss'}">${pred??'?'}</div>
+        <div class="ts-real">real: ${real??'?'}</div>
+        <div class="ts-pts ${ok?'ok':'miss'}">${ok?'✓ +1pt':'✗'}</div>
       </div>
     </td>`;
-  };
 
   const quizC=(ok,pts,at,bg)=>{
     const tryLbl=ok?(at===1?'1er int':at===2?'2do int':'3er int'):'No aprobó';
@@ -977,7 +976,7 @@ function renderRanking(filter){
     // ── Expand detail ──
     const detail=`<div class="rk-exp-inner"><div class="exp-grid">
       <div class="exp-card">
-        <div class="exp-title" style="color:#15803D">🏆 Posiciones</div>
+        <div class="exp-title" style="color:#15803D">🏆 Posiciones <span style="text-transform:none;font-weight:600;color:#B8860B">· Acertaste ${r.aciertosPuestos}, recibes +${r.ptsAciertosPuestos}pt</span></div>
         ${[['🥇 Campeón',r.pred1,sr.p1,r.ok1,r.pts1,'ok'],['🥈 2do',r.pred2,sr.p2,r.ok2,r.pts2,'ok'],
            ['🥉 3ro',r.pred3,sr.p3,r.ok3,r.pts3,'ok'],['4to',r.pred4,sr.p4,r.ok4,r.pts4,'ok']]
           .map(([lbl,pred,real,ok,pts,type])=>`<div class="exp-row">
@@ -987,23 +986,11 @@ function renderRanking(filter){
           </div>`).join('')}
       </div>
       <div class="exp-card">
-        <div class="exp-title" style="color:#92400E">⚽ Bonus Final — ${fl(sr.p1)} ${sr.p1} ${sr.g1l}–${sr.g1v} ${fl(sr.p2)} ${sr.p2}</div>
-        <div class="exp-row"><span class="exp-lbl">Pronosticó</span><span class="exp-val" style="font-weight:700">${r.predG1L??'?'} – ${r.predG1V??'?'}</span></div>
-        ${[['Gol '+sr.p1+' (local)',r.bG1L,r.predG1L,sr.g1l],
-           ['Gol '+sr.p2+' (visita)',r.bG1V,r.predG1V,sr.g1v],
-           ['Resultado',r.bR1,rl[getResultado(r.predG1L,r.predG1V)],rl[getResultado(sr.g1l,sr.g1v)]]]
-          .map(([lbl,ok,pred,real])=>`<div class="exp-row">
-            <span class="exp-lbl">${lbl}</span>
-            <span class="exp-val">${pred??'?'} <span style="color:#94A3B8;font-size:10px">real: ${real??'?'}</span></span>
-            <span class="exp-pts ${ok?'ep-bon':'ep-miss'}">${ok?'+1 pt':'✗'}</span>
-          </div>`).join('')}
-      </div>
-      <div class="exp-card">
-        <div class="exp-title" style="color:#92400E">🥉 Bonus 3°/4° — ${fl(sr.p3)} ${sr.p3} ${sr.g3l}–${sr.g3v} ${fl(sr.p4)} ${sr.p4}</div>
-        <div class="exp-row"><span class="exp-lbl">Pronosticó</span><span class="exp-val" style="font-weight:700">${r.predG3L??'?'} – ${r.predG3V??'?'}</span></div>
-        ${[['Gol '+sr.p3+' (local)',r.bG3L,r.predG3L,sr.g3l],
-           ['Gol '+sr.p4+' (visita)',r.bG3V,r.predG3V,sr.g3v],
-           ['Resultado',r.bR3,rl[getResultado(r.predG3L,r.predG3V)],rl[getResultado(sr.g3l,sr.g3v)]]]
+        <div class="exp-title" style="color:#92400E">⚽ Acierto de gol</div>
+        ${[['Gol '+sr.p1+' (Campeón)',r.bG1,r.predG1L,sr.g1l],
+           ['Gol '+sr.p2+' (Subcampeón)',r.bG2,r.predG1V,sr.g1v],
+           ['Gol '+sr.p3+' (3ero)',r.bG3,r.predG3L,sr.g3l],
+           ['Gol '+sr.p4+' (4to)',r.bG4,r.predG3V,sr.g3v]]
           .map(([lbl,ok,pred,real])=>`<div class="exp-row">
             <span class="exp-lbl">${lbl}</span>
             <span class="exp-val">${pred??'?'} <span style="color:#94A3B8;font-size:10px">real: ${real??'?'}</span></span>
@@ -1048,10 +1035,11 @@ function renderRanking(filter){
       ${countryC(r.ok2,r.pts2,r.pred2,bg1)}
       ${countryC(r.ok3,r.pts3,r.pred3,bg1)}
       ${countryC(r.ok4,r.pts4,r.pred4,bg1)}
-      ${scoreC(r.bG1L===1,r.bG1V===1,r.predG1L,r.predG1V,sr.g1l,sr.g1v,bg2)}
-      ${resC(r.bR1===1,r.predG1L,r.predG1V,sr.g1l,sr.g1v,bg2)}
-      ${scoreC(r.bG3L===1,r.bG3V===1,r.predG3L,r.predG3V,sr.g3l,sr.g3v,bg2)}
-      ${resC(r.bR3===1,r.predG3L,r.predG3V,sr.g3l,sr.g3v,bg2)}
+      ${aciertosC(r.aciertosPuestos,r.ptsAciertosPuestos,'#FFF8E1')}
+      ${golC(r.bG1===1,r.predG1L,sr.g1l,bg2)}
+      ${golC(r.bG2===1,r.predG1V,sr.g1v,bg2)}
+      ${golC(r.bG3===1,r.predG3L,sr.g3l,bg2)}
+      ${golC(r.bG4===1,r.predG3V,sr.g3v,bg2)}
       ${quizC(r.q1ok,r.ptsQ1,r.q1at,bg3)}
       ${quizC(r.q2ok,r.ptsQ2,r.q2at,bg3)}
       <td class="rk-td bl" style="height:72px">
