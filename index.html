@@ -1237,7 +1237,7 @@ html, body {
               <div style="display:flex;justify-content:space-between"><span>Top4 3°</span><span style="color:#8B5E2A">2 pts</span></div>
               <div style="display:flex;justify-content:space-between"><span>Top4 4°</span><span style="color:var(--mid)">1 pt</span></div>
             </div>
-            <div style="margin-top:8px;padding-top:8px;border-top:1px dashed var(--brd);font-size:10px;color:var(--muted);font-weight:600;line-height:1.4">🔑 En caso de empate en puntaje total, se revisa en orden: 1° ¿acertó el Campeón? 2° ¿acertó el Subcampeón? 3° ¿acertó el 3ero? 4° ¿acertó el 4to? Solo si sigue empate, se compara quién acertó más goles exactos.</div>
+            <div style="margin-top:8px;padding-top:8px;border-top:1px dashed var(--brd);font-size:10px;color:var(--muted);font-weight:600;line-height:1.4">🔑 En caso de empate en puntaje total, se revisa en orden: 1° ¿acertó el Campeón? 2° ¿acertó el Subcampeón? 3° ¿acertó el 3ero? 4° ¿acertó el 4to? 5° ¿quién acertó más goles exactos? 6° ¿quién quedó más cerca del marcador real en la Final y el Tercer puesto (menor diferencia de goles)?</div>
           </div>
           <div style="background:#FFF8EA;border-radius:10px;padding:10px 12px;border:1px solid #F0D060">
             <div style="font-size:10px;font-weight:900;color:#8A6200;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Zonas ganadoras</div>
@@ -2402,6 +2402,15 @@ function rkCalcScore(reg,res){
   var bG4=(parseInt(reg.top4_3_goles_visita)===parseInt(res.g3v))?1:0;
   var golesCount=bG1+bG2+bG3+bG4;
 
+  // Desempate fino: qué tan cerca quedó del marcador real en ambos partidos
+  // (Final y Tercer puesto), sumando la diferencia absoluta de goles en las
+  // 4 posiciones. Menor diferencia = más cerca del resultado real = mejor.
+  var diffG1L=Math.abs((parseInt(reg.top4_1_goles_local)||0)-(parseInt(res.g1l)||0));
+  var diffG1V=Math.abs((parseInt(reg.top4_1_goles_visita)||0)-(parseInt(res.g1v)||0));
+  var diffG3L=Math.abs((parseInt(reg.top4_3_goles_local)||0)-(parseInt(res.g3l)||0));
+  var diffG3V=Math.abs((parseInt(reg.top4_3_goles_visita)||0)-(parseInt(res.g3v)||0));
+  var diffMarcador=diffG1L+diffG1V+diffG3L+diffG3V;
+
   // Bonus: cantidad de PUESTOS EXACTOS acertados (no importa cuáles, solo cuántos
   // de los 4 —Campeón/Subcampeón/3ero/4to— coinciden exactamente con la realidad).
   // Ej: si acertó 3 de los 4 puestos exactos, +3 pt de bono, independiente de si
@@ -2421,7 +2430,7 @@ function rkCalcScore(reg,res){
   return{
     codigo:String(reg.colaborador_codigo).trim(),
     ok1:ok1,ok2:ok2,ok3:ok3,ok4:ok4,pts1:pts1,pts2:pts2,pts3:pts3,pts4:pts4,
-    bG1:bG1,bG2:bG2,bG3:bG3,bG4:bG4,golesCount:golesCount,
+    bG1:bG1,bG2:bG2,bG3:bG3,bG4:bG4,golesCount:golesCount,diffMarcador:diffMarcador,
     aciertosPuestos:aciertosPuestos,ptsAciertosPuestos:ptsAciertosPuestos,bonusTotal:bonusTotal,
     q1ok:q1ok,q2ok:q2ok,q1at:q1at,q2at:q2at,ptsQ1:ptsQ1,ptsQ2:ptsQ2,ptsQuiz:ptsQuiz,
     total:pts1+pts2+pts3+pts4+bonusTotal+ptsQuiz,
@@ -2583,7 +2592,7 @@ async function rkLoadData(){
       return score;
     });
 
-    RK_DATA.sort(function(a,b){return b.total-a.total||(b.ok1-a.ok1)||(b.ok2-a.ok2)||(b.ok3-a.ok3)||(b.ok4-a.ok4)||b.golesCount-a.golesCount||b.ptsQuiz-a.ptsQuiz||a.codigo.localeCompare(b.codigo);});
+    RK_DATA.sort(function(a,b){return b.total-a.total||(b.ok1-a.ok1)||(b.ok2-a.ok2)||(b.ok3-a.ok3)||(b.ok4-a.ok4)||b.golesCount-a.golesCount||(a.diffMarcador-b.diffMarcador)||b.ptsQuiz-a.ptsQuiz||a.codigo.localeCompare(b.codigo);});
 
     RK_LOADED=true;
     if(sub)sub.textContent='Actualizado · '+RK_DATA.length+' participantes';
@@ -2629,7 +2638,7 @@ function rkRender(mountKey, filter){
   }
 
   // recalcular posiciones dentro del filtro — secuencial estricto (1,2,3,4… sin saltos, el desempate ya viene del sort)
-  var sorted=list.slice().sort(function(a,b){return b.total-a.total||(b.ok1-a.ok1)||(b.ok2-a.ok2)||(b.ok3-a.ok3)||(b.ok4-a.ok4)||b.golesCount-a.golesCount||b.ptsQuiz-a.ptsQuiz||a.codigo.localeCompare(b.codigo);});
+  var sorted=list.slice().sort(function(a,b){return b.total-a.total||(b.ok1-a.ok1)||(b.ok2-a.ok2)||(b.ok3-a.ok3)||(b.ok4-a.ok4)||b.golesCount-a.golesCount||(a.diffMarcador-b.diffMarcador)||b.ptsQuiz-a.ptsQuiz||a.codigo.localeCompare(b.codigo);});
   var pos=[];
   sorted.forEach(function(r,i){
     pos[i]=i+1;
