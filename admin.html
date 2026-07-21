@@ -795,7 +795,7 @@ async function calcRanking(){
       return score;
     });
 
-    rankingData.sort((a,b)=>b.total-a.total||(a.diffMarcador-b.diffMarcador)||b.ptsQuiz-a.ptsQuiz||a.codigo.localeCompare(b.codigo));
+    rankingData.sort((a,b)=>b.total-a.total||(b.aciertosPuestos-a.aciertosPuestos)||(a.diffMarcador-b.diffMarcador)||b.ptsQuiz-a.ptsQuiz||a.codigo.localeCompare(b.codigo));
     rankingData.forEach((r,i)=>{
       if(i>0&&rankingData[i-1].total===r.total) r.pos=rankingData[i-1].pos;
       else r.pos=i+1;
@@ -915,7 +915,7 @@ function renderRanking(filter){
     :filter==='otras'?rankingData.filter(r=>r.regional==='otras')
     :rankingData.filter(r=>r.regional===filter);
 
-  const sorted=[...list].sort((a,b)=>b.total-a.total||(a.diffMarcador-b.diffMarcador)||b.ptsQuiz-a.ptsQuiz||a.codigo.localeCompare(b.codigo));
+  const sorted=[...list].sort((a,b)=>b.total-a.total||(b.aciertosPuestos-a.aciertosPuestos)||(a.diffMarcador-b.diffMarcador)||b.ptsQuiz-a.ptsQuiz||a.codigo.localeCompare(b.codigo));
   const posMap={};
   sorted.forEach((r,i)=>{ posMap[r.codigo]=i+1; });
 
