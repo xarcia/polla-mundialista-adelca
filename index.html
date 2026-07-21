@@ -2809,10 +2809,14 @@ document.addEventListener('click',function(e){
 });
 
 /* ── INIT ── */
+if('scrollRestoration' in history){ history.scrollRestoration='manual'; }
+window.scrollTo(0,0);
 initSlider();
 rSR();
 render();
 rkLoadData();
+window.scrollTo(0,0);
+window.addEventListener('load',function(){window.scrollTo(0,0);});
 
 var PAISES=SL.map(function(s){return [s.f,s.n];});
 var _pcRAF=null;
