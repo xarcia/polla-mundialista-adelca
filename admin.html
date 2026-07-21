@@ -283,7 +283,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--ink);min-h
 .tipo-idea-item:last-child{margin-bottom:0;}
 .tipo-quote{font-size:11px;color:#374151;padding:4px 8px;border-radius:0 4px 4px 0;margin-bottom:3px;line-height:1.4;word-break:break-word;}
 </style>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
 </head>
 <body>
 
@@ -393,6 +393,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--ink);min-h
 
       <div style="display:flex;gap:12px;align-items:center;margin-bottom:16px;flex-wrap:wrap;">
         <button class="btn-calc" id="BTN_CALC" onclick="calcRanking()"><span id="BTN_CALC_TXT">⚡ Calcular ranking</span></button>
+        <button class="btn-calc" id="BTN_XLS_RANKING" onclick="downloadRankingExcel()" style="background:#15803D">📥 Descargar Excel (todas las zonas)</button>
         <span id="CALC_NOTE" style="font-size:13px;color:var(--muted);"></span>
       </div>
 
@@ -1593,6 +1594,173 @@ function renderSentimientos(){
     }).join('')}</div>`;
 }
 
+
+function downloadRankingExcel(){
+  if(!rankingData.length){ alert('Primero presiona "Calcular ranking".'); return; }
+  if(typeof XLSX === 'undefined'){ alert('SheetJS aún no cargó. Intenta en un momento.'); return; }
+
+  const sr = savedResults;
+  const zones = [
+    {key:'todas',  label:'Todas'},
+    {key:'Aloag',  label:'Aloag'},
+    {key:'Milagro',label:'Milagro'},
+    {key:'otras',  label:'Otras Regionales'}
+  ];
+
+  const wb = XLSX.utils.book_new();
+
+  zones.forEach(z=>{
+    let list = z.key==='todas' ? rankingData
+      : z.key==='otras' ? rankingData.filter(r=>r.regional==='otras')
+      : rankingData.filter(r=>r.regional===z.key);
+
+    const sorted = [...list].sort((a,b)=>
+      b.total-a.total ||
+      (b.aciertosPuestos-a.aciertosPuestos) ||
+      (a.diffMarcador-b.diffMarcador) ||
+      b.ptsQuiz-a.ptsQuiz ||
+      a.codigo.localeCompare(b.codigo)
+    );
+
+    const infoRows = [
+      ['RANKING MUNDIAL 2026 — '+z.label.toUpperCase()],
+      ['Resultados oficiales — Campeón: '+(sr?.p1||'—')+'  ·  Subcampeón: '+(sr?.p2||'—')+'  ·  3ero: '+(sr?.p3||'—')+'  ·  4to: '+(sr?.p4||'—')],
+      ['Goles Final — '+(sr?.p1||'?')+' '+(sr?.g1l??'?')+'  vs  '+(sr?.g1v??'?')+' '+(sr?.p2||'?')+'   |   Goles 3°/4° — '+(sr?.p3||'?')+' '+(sr?.g3l??'?')+'  vs  '+(sr?.g3v??'?')+' '+(sr?.p4||'?')],
+      ['Generado: '+new Date().toLocaleString('es-EC')],
+      []
+    ];
+
+    const headers = [
+      '#','Código','Nombre','Regional',
+      // Posiciones — pronóstico vs real
+      'Campeón Pronóstico','Campeón Real','Pts',
+      'Subcampeón Pronóstico','Subcampeón Real','Pts',
+      '3ero Pronóstico','3ero Real','Pts',
+      '4to Pronóstico','4to Real','Pts',
+      'Subtotal Posición (10 máx)',
+      // Bono aciertos de puesto
+      'Aciertos de Puesto (0-4)','Pts Aciertos de Puesto',
+      // Goles — pronóstico vs real
+      'Gol Campeón Pronóstico','Gol Campeón Real','Pts',
+      'Gol Subcampeón Pronóstico','Gol Subcampeón Real','Pts',
+      'Gol 3ero Pronóstico','Gol 3ero Real','Pts',
+      'Gol 4to Pronóstico','Gol 4to Real','Pts',
+      'Subtotal Goles (4 máx)',
+      'Diferencia al Marcador Real (desempate)',
+      // Quiz
+      'Quiz P1 Intento','Pts Quiz P1',
+      'Quiz P2 Intento','Pts Quiz P2',
+      'Subtotal Quiz (6 máx)',
+      // Total
+      'PUNTAJE TOTAL'
+    ];
+
+    const dataRows = sorted.map((r,i)=>{
+      const subPos = r.pts1+r.pts2+r.pts3+r.pts4;
+      const subGol = (r.bG1?1:0)+(r.bG2?1:0)+(r.bG3?1:0)+(r.bG4?1:0);
+      const q1Lbl = r.q1ok?(r.q1at===1?'1er intento':r.q1at===2?'2do intento':'3er intento'):'No aprobó';
+      const q2Lbl = r.q2ok?(r.q2at===1?'1er intento':r.q2at===2?'2do intento':'3er intento'):'No aprobó';
+      return [
+        i+1, r.codigo, r.nombre||'—', {'Milagro':'Milagro','Aloag':'Aloag'}[r.regional]||'Otras',
+        r.pred1||'—', sr?.p1||'—', r.pts1,
+        r.pred2||'—', sr?.p2||'—', r.pts2,
+        r.pred3||'—', sr?.p3||'—', r.pts3,
+        r.pred4||'—', sr?.p4||'—', r.pts4,
+        subPos,
+        r.aciertosPuestos, r.ptsAciertosPuestos,
+        r.predG1L??'—', sr?.g1l??'—', r.bG1?1:0,
+        r.predG1V??'—', sr?.g1v??'—', r.bG2?1:0,
+        r.predG3L??'—', sr?.g3l??'—', r.bG3?1:0,
+        r.predG3V??'—', sr?.g3v??'—', r.bG4?1:0,
+        subGol,
+        r.diffMarcador,
+        q1Lbl, r.ptsQ1,
+        q2Lbl, r.ptsQ2,
+        r.ptsQuiz,
+        r.total
+      ];
+    });
+
+    const ws = XLSX.utils.aoa_to_sheet([...infoRows, headers, ...dataRows]);
+    ws['!cols'] = [
+      {wch:5},{wch:10},{wch:26},{wch:10},
+      {wch:15},{wch:12},{wch:5},
+      {wch:15},{wch:12},{wch:5},
+      {wch:15},{wch:12},{wch:5},
+      {wch:15},{wch:12},{wch:5},
+      {wch:12},
+      {wch:12},{wch:12},
+      {wch:12},{wch:10},{wch:5},
+      {wch:12},{wch:10},{wch:5},
+      {wch:12},{wch:10},{wch:5},
+      {wch:12},{wch:10},{wch:5},
+      {wch:10},
+      {wch:14},
+      {wch:13},{wch:9},
+      {wch:13},{wch:9},
+      {wch:11},
+      {wch:12}
+    ];
+    ws['!autofilter'] = {ref: XLSX.utils.encode_range({s:{r:infoRows.length,c:0}, e:{r:infoRows.length+dataRows.length,c:headers.length-1}})};
+    ws['!merges'] = [{s:{r:0,c:0},e:{r:0,c:headers.length-1}}];
+    ws['!freeze'] = {xSplit:0, ySplit:infoRows.length+1};
+
+    // ── Formato por secciones (colores distintos por bloque) ──
+    // Rango de columnas [inicio,fin] inclusive → color de sección
+    const sections = [
+      {cols:[0,3],   header:'475569', fill:'F1F5F9'}, // Identificación — gris
+      {cols:[4,16],  header:'15803D', fill:'F0FDF4'}, // Posición — verde
+      {cols:[17,18], header:'B8860B', fill:'FFF8E1'}, // Aciertos de puesto — dorado
+      {cols:[19,32], header:'92400E', fill:'FFFBEB'}, // Goles — ámbar
+      {cols:[33,37], header:'6D28D9', fill:'F5F3FF'}, // Quiz — morado
+      {cols:[38,38], header:'B91C1C', fill:'FEE2E2'}  // Total — rojo
+    ];
+    const sectionFor = c => sections.find(s=>c>=s.cols[0]&&c<=s.cols[1]);
+    const thin = {style:'thin', color:{rgb:'D1D5DB'}};
+    const border = {top:thin,bottom:thin,left:thin,right:thin};
+
+    const headerRowIdx = infoRows.length;
+    // Título (fila 0): fondo rojo Adelca, texto blanco
+    const titleCell = XLSX.utils.encode_cell({r:0,c:0});
+    if(ws[titleCell]) ws[titleCell].s = {font:{bold:true,sz:14,color:{rgb:'FFFFFF'}}, fill:{patternType:'solid',fgColor:{rgb:'E30613'}}, alignment:{horizontal:'left',vertical:'center'}};
+    // Filas de info (1-3): fondo gris claro, texto en negrita
+    for(let r=1;r<infoRows.length-1;r++){
+      const c0 = XLSX.utils.encode_cell({r,c:0});
+      if(ws[c0]) ws[c0].s = {font:{bold:true,color:{rgb:'374151'}}, fill:{patternType:'solid',fgColor:{rgb:'F1F5F9'}}};
+    }
+    // Encabezado de columnas: color de su sección, texto blanco y negrita
+    for(let c=0;c<headers.length;c++){
+      const cell = XLSX.utils.encode_cell({r:headerRowIdx,c});
+      const sec = sectionFor(c);
+      if(ws[cell]) ws[cell].s = {
+        font:{bold:true, color:{rgb:'FFFFFF'}, sz:10},
+        fill:{patternType:'solid', fgColor:{rgb:sec.header}},
+        alignment:{horizontal:'center', vertical:'center', wrapText:true},
+        border
+      };
+    }
+    // Filas de datos: relleno tenue de la sección, bordes finos, total en negrita
+    for(let r=0;r<dataRows.length;r++){
+      const rowIdx = headerRowIdx+1+r;
+      for(let c=0;c<headers.length;c++){
+        const cell = XLSX.utils.encode_cell({r:rowIdx,c});
+        if(!ws[cell]) continue;
+        const sec = sectionFor(c);
+        const isTotal = c===headers.length-1;
+        ws[cell].s = {
+          font:{bold:isTotal, sz:isTotal?11:10, color:{rgb:isTotal?'B91C1C':'1F2937'}},
+          fill:{patternType:'solid', fgColor:{rgb:sec.fill}},
+          alignment:{horizontal: c<=2 ? 'left':'center', vertical:'center'},
+          border
+        };
+      }
+    }
+
+    XLSX.utils.book_append_sheet(wb, ws, z.label.slice(0,31));
+  });
+
+  XLSX.writeFile(wb, 'Ranking_Mundial2026_'+new Date().toISOString().slice(0,10)+'.xlsx');
+}
 
 function downloadCSV(){
   const rows = getSentFiltered();
