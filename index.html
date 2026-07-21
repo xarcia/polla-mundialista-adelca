@@ -266,9 +266,8 @@ textarea{resize:none;line-height:1.6}
 
 /* ── POLLA: selector de países ── */
 .pc{background:var(--wh);border:2px solid var(--brd);border-radius:12px;overflow:hidden;transition:border-color .2s;position:relative}
-.pc-lock-overlay{position:absolute;inset:0;background:rgba(255,255,255,.72);backdrop-filter:blur(1.5px);-webkit-backdrop-filter:blur(1.5px);display:flex;align-items:center;justify-content:center;gap:8px;z-index:6;border-radius:0 0 10px 10px;cursor:not-allowed}
+.pc-lock-overlay{position:absolute;inset:0;background:rgba(255,255,255,.55);backdrop-filter:blur(.5px);-webkit-backdrop-filter:blur(.5px);display:flex;align-items:center;justify-content:center;gap:8px;z-index:6;border-radius:0 0 10px 10px;cursor:not-allowed}
 .pc-lock-badge{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.92);border:1.5px solid var(--brd);border-radius:20px;padding:6px 14px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
-.pc-lock-icon{font-size:15px}
 .pc-lock-txt{font-size:11px;font-weight:800;color:var(--muted)}
 .pc.selected-ok{border-color:rgba(27,107,53,.4);background:var(--okbg)}
 .pch{padding:11px 14px;display:flex;align-items:center;gap:10px;border-bottom:1.5px solid var(--brd);background:var(--gh)}
@@ -1455,7 +1454,7 @@ function bloquearInputsPronostico(){
   const btn=document.getElementById('BP');
   if(btn)btn.disabled=cerrado;
   const pe=document.getElementById('PE');
-  if(cerrado&&pe){pe.style.display='block';pe.textContent='El registro cerró a medianoche. Los pronósticos ya no pueden modificarse.';}
+  if(cerrado&&pe){pe.style.display='block';pe.textContent='El registro se cerró antes de iniciar el Mundial.';}
   [0,1,2,3].forEach(function(i){
     const pcb=document.querySelector('#PC'+i+' .pcb');
     if(!pcb)return;
@@ -1463,7 +1462,7 @@ function bloquearInputsPronostico(){
     if(cerrado&&!existing){
       const ov=document.createElement('div');
       ov.className='pc-lock-overlay';
-      ov.innerHTML='<div class="pc-lock-badge"><span class="pc-lock-icon">🔒</span><span class="pc-lock-txt">Pronóstico bloqueado</span></div>';
+      ov.innerHTML='<div class="pc-lock-badge"><span class="pc-lock-txt">Registro cerrado</span></div>';
       pcb.appendChild(ov);
     } else if(!cerrado&&existing){
       existing.remove();
@@ -1530,7 +1529,7 @@ function go(n){
   // Después de terminado el contador, la pestaña 5 solo es accesible con registro existente
   if(n===4 && !pronosticoAbierto() && !fd.yaRegistrado){
     const pe=document.getElementById('PE');
-    if(pe){pe.style.display='block';pe.textContent='El registro cerró a medianoche. Solo puedes ver la pantalla final si ya tienes un registro.';}
+    if(pe){pe.style.display='block';pe.textContent='El registro se cerró antes de iniciar el Mundial. Solo puedes ver la pantalla final si ya tienes un registro.';}
     return;
   }
   cur=n;rSR();render();window.scrollTo({top:0,behavior:'smooth'});
@@ -1874,7 +1873,7 @@ function P1(){
   if(lk==='notfound'){hm='Código no encontrado. Verifica el número principal en el sistema EB (no el código ADE…).';hc='ht e';hi='al';}
   else if(lk==='invalid'){hm='Solo dígitos, entre 3 y 6 caracteres. Ejemplo: 4276';hc='ht e';hi='al';}
   else if(lk==='loading'){hm='Verificando en base de datos Supabase…';}
-  else if(lk==='closed'){hm='El registro cerró a medianoche. Solo quienes ya tienen un registro pueden ingresar a la pestaña Listo.';hc='ht e';hi='al';}
+  else if(lk==='closed'){hm='El registro se cerró antes de iniciar el Mundial. Solo quienes ya tienen un registro pueden ingresar a la pestaña Listo.';hc='ht e';hi='al';}
   else if(lk==='ok'){hm='Colaborador encontrado. ¿Eres tú? Confirma y continúa.';hc='ht o';hi='ok';}
   else hm=pronosticoAbierto()?'':'Ingresa tu código para consultar si ya tienes un registro. Las nuevas inscripciones están cerradas (medianoche Ecuador).';
   const btnLabel = lk==='loading'
@@ -2078,10 +2077,10 @@ function P4(){
           <div class="ml">Goles pronosticados</div>
           <input type="number" id="FG${p.i}" min="0" step="1" max="20" value="${fd.g[p.i]>0?fd.g[p.i]:''}" placeholder="0" style="text-align:center"${dis}>
         </div>
-        ${pronosticoCerrado?'<div class="pc-lock-overlay"><div class="pc-lock-badge"><span class="pc-lock-icon">🔒</span><span class="pc-lock-txt">Pronóstico bloqueado</span></div></div>':''}
+        ${pronosticoCerrado?'<div class="pc-lock-overlay"><div class="pc-lock-badge"><span class="pc-lock-txt">Registro cerrado</span></div></div>':''}
       </div>
     </div>`).join('')}
-    <div id="PE" style="display:${pronosticoCerrado?'block':'none'};padding:11px 14px;background:var(--red-soft);border:2px solid rgba(227,6,19,.3);border-radius:10px;font-size:13px;color:var(--redd);font-weight:700">${pronosticoCerrado?(fd.yaRegistrado?'Tu pronóstico ya fue enviado. El registro es único e irrevocable, no se puede modificar.':'El registro cerró a medianoche. Los pronósticos ya no pueden modificarse.'):''}</div>
+    <div id="PE" style="display:${pronosticoCerrado?'block':'none'};padding:11px 14px;background:var(--red-soft);border:2px solid rgba(227,6,19,.3);border-radius:10px;font-size:13px;color:var(--redd);font-weight:700">${pronosticoCerrado?'El registro se cerró antes de iniciar el Mundial.':''}</div>
     <button class="btn bm" id="BP"${dis}>${fd.yaRegistrado?'✅ Pronóstico enviado':'⚽ Enviar mi pronóstico'}</button>
     <button class="btn bgh" id="BPB">← Volver</button>
   </div>`;}
@@ -2121,7 +2120,7 @@ function b4(){
   document.getElementById('BP').addEventListener('click',()=>{
     if(!pronosticoAbierto()){
       const pe=document.getElementById('PE');
-      if(pe){pe.style.display='block';pe.textContent='El registro cerró a medianoche. Los pronósticos ya no pueden modificarse.';}
+      if(pe){pe.style.display='block';pe.textContent='El registro se cerró antes de iniciar el Mundial.';}
       bloquearInputsPronostico();
       return;
     }
