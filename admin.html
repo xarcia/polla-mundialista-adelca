@@ -1645,7 +1645,6 @@ function downloadRankingExcel(){
       'Gol Subcampeón Pronóstico','Gol Subcampeón Real','Pts',
       'Gol 3ero Pronóstico','Gol 3ero Real','Pts',
       'Gol 4to Pronóstico','Gol 4to Real','Pts',
-      'Subtotal Goles (4 máx)',
       'Diferencia al Marcador Real (desempate)',
       // Quiz
       'Quiz P1 Intento','Pts Quiz P1',
@@ -1657,7 +1656,6 @@ function downloadRankingExcel(){
 
     const dataRows = sorted.map((r,i)=>{
       const subPos = r.pts1+r.pts2+r.pts3+r.pts4;
-      const subGol = (r.bG1?1:0)+(r.bG2?1:0)+(r.bG3?1:0)+(r.bG4?1:0);
       const q1Lbl = r.q1ok?(r.q1at===1?'1er intento':r.q1at===2?'2do intento':'3er intento'):'No aprobó';
       const q2Lbl = r.q2ok?(r.q2at===1?'1er intento':r.q2at===2?'2do intento':'3er intento'):'No aprobó';
       return [
@@ -1672,7 +1670,6 @@ function downloadRankingExcel(){
         r.predG1V??'—', sr?.g1v??'—', r.bG2?1:0,
         r.predG3L??'—', sr?.g3l??'—', r.bG3?1:0,
         r.predG3V??'—', sr?.g3v??'—', r.bG4?1:0,
-        subGol,
         r.diffMarcador,
         q1Lbl, r.ptsQ1,
         q2Lbl, r.ptsQ2,
@@ -1694,7 +1691,6 @@ function downloadRankingExcel(){
       {wch:12},{wch:10},{wch:5},
       {wch:12},{wch:10},{wch:5},
       {wch:12},{wch:10},{wch:5},
-      {wch:10},
       {wch:14},
       {wch:13},{wch:9},
       {wch:13},{wch:9},
@@ -1705,17 +1701,23 @@ function downloadRankingExcel(){
     ws['!merges'] = [{s:{r:0,c:0},e:{r:0,c:headers.length-1}}];
     ws['!freeze'] = {xSplit:0, ySplit:infoRows.length+1};
 
-    // ── Formato por secciones (colores distintos por bloque) ──
-    // Rango de columnas [inicio,fin] inclusive → color de sección
+    // ── Formato por secciones (colores distintos por bloque, con 3 tonos: claro=pronóstico, medio=real, oscuro=puntos) ──
     const sections = [
-      {cols:[0,3],   header:'475569', fill:'F1F5F9'}, // Identificación — gris
-      {cols:[4,16],  header:'15803D', fill:'F0FDF4'}, // Posición — verde
-      {cols:[17,18], header:'B8860B', fill:'FFF8E1'}, // Aciertos de puesto — dorado
-      {cols:[19,32], header:'92400E', fill:'FFFBEB'}, // Goles — ámbar
-      {cols:[33,37], header:'6D28D9', fill:'F5F3FF'}, // Quiz — morado
-      {cols:[38,38], header:'B91C1C', fill:'FEE2E2'}  // Total — rojo
+      {cols:[0,3],   header:'475569', light:'F1F5F9', medium:'F1F5F9', dark:'F1F5F9'}, // Identificación — gris (sin niveles)
+      {cols:[4,16],  header:'15803D', light:'F0FDF4', medium:'D1FAE5', dark:'A7F3D0'}, // Posición — verde
+      {cols:[17,18], header:'B8860B', light:'FFF8E1', medium:'FDE9A8', dark:'FBCE44'}, // Aciertos de puesto — dorado
+      {cols:[19,31], header:'92400E', light:'FFFBEB', medium:'FEF3C7', dark:'FCD34D'}, // Goles — ámbar
+      {cols:[32,36], header:'6D28D9', light:'F5F3FF', medium:'E9D5FF', dark:'D8B4FE'}, // Quiz — morado
+      {cols:[37,37], header:'B91C1C', light:'FEE2E2', medium:'FEE2E2', dark:'FCA5A5'}  // Total — rojo
     ];
     const sectionFor = c => sections.find(s=>c>=s.cols[0]&&c<=s.cols[1]);
+    // Determina el tono según el rol de la columna: claro=pronóstico/intento, medio=real, oscuro=puntos/subtotal
+    const shadeFor = (sec,header)=>{
+      if(/Pronóstico|Intento|Aciertos de Puesto \(0-4\)/i.test(header)) return sec.light;
+      if(/Real/i.test(header)) return sec.medium;
+      if(/Pts|Total|Subtotal|Diferencia/i.test(header)) return sec.dark;
+      return sec.light;
+    };
     const thin = {style:'thin', color:{rgb:'D1D5DB'}};
     const border = {top:thin,bottom:thin,left:thin,right:thin};
 
@@ -1739,17 +1741,18 @@ function downloadRankingExcel(){
         border
       };
     }
-    // Filas de datos: relleno tenue de la sección, bordes finos, total en negrita
+    // Filas de datos: tono según rol (claro=pronóstico, medio=real, oscuro=puntos), bordes finos, total en negrita
     for(let r=0;r<dataRows.length;r++){
       const rowIdx = headerRowIdx+1+r;
       for(let c=0;c<headers.length;c++){
         const cell = XLSX.utils.encode_cell({r:rowIdx,c});
         if(!ws[cell]) continue;
         const sec = sectionFor(c);
+        const shade = shadeFor(sec, headers[c]);
         const isTotal = c===headers.length-1;
         ws[cell].s = {
           font:{bold:isTotal, sz:isTotal?11:10, color:{rgb:isTotal?'B91C1C':'1F2937'}},
-          fill:{patternType:'solid', fgColor:{rgb:sec.fill}},
+          fill:{patternType:'solid', fgColor:{rgb:shade}},
           alignment:{horizontal: c<=2 ? 'left':'center', vertical:'center'},
           border
         };
