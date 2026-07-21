@@ -1237,7 +1237,7 @@ html, body {
               <div style="display:flex;justify-content:space-between"><span>Top4 3°</span><span style="color:#8B5E2A">2 pts</span></div>
               <div style="display:flex;justify-content:space-between"><span>Top4 4°</span><span style="color:var(--mid)">1 pt</span></div>
             </div>
-            <div style="margin-top:8px;padding-top:8px;border-top:1px dashed var(--brd);font-size:10px;color:var(--muted);font-weight:600;line-height:1.4">🔑 En caso de empate en puntaje total, se revisa en orden: 1° ¿acertó el Campeón? 2° ¿acertó el Subcampeón? 3° ¿acertó el 3ero? 4° ¿acertó el 4to? 5° ¿quién acertó más goles exactos? 6° ¿quién quedó más cerca del marcador real en la Final y el Tercer puesto (menor diferencia de goles)?</div>
+            <div style="margin-top:8px;padding-top:8px;border-top:1px dashed var(--brd);font-size:10px;color:var(--muted);font-weight:600;line-height:1.4">🔑 En caso de empate en puntaje total, gana quien haya quedado más cerca del marcador real en la Final y el Tercer puesto (menor diferencia de goles). Si aún hay empate, se compara el quiz.</div>
           </div>
           <div style="background:#FFF8EA;border-radius:10px;padding:10px 12px;border:1px solid #F0D060">
             <div style="font-size:10px;font-weight:900;color:#8A6200;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Zonas ganadoras</div>
@@ -2499,7 +2499,7 @@ function rkDetailHtml(r){
       +'<div class="rk-dr-top"><span class="rk-detail-lbl">Acertaste '+r.aciertosPuestos+' de 4 puestos</span><span class="rk-detail-pts '+(r.aciertosPuestos>0?'ok':'miss')+'">+'+r.ptsAciertosPuestos+' pt</span></div>'
       +'<div class="rk-dr-compare"><div class="rk-dr-side"><span class="rk-dr-tag">1 pt por cada puesto exacto acertado (Campeón, Subcampeón, 3ero, 4to)</span></div></div>'
     +'</div></div>';
-  var golesCard='<div class="rk-detail-card"><div class="rk-detail-title" style="color:#92400E">⚽ Acierto de gol <span style="text-transform:none;font-weight:600;color:#B08420">· desempate: '+r.golesCount+'/4</span></div>'
+  var golesCard='<div class="rk-detail-card"><div class="rk-detail-title" style="color:#92400E">⚽ Acierto de gol <span style="text-transform:none;font-weight:600;color:#B08420">· diferencia al marcador real: '+r.diffMarcador+'</span></div>'
     +row('Goles Campeón',r.predG1L,sr.g1l,r.bG1===1,1)
     +row('Goles Subcampeón',r.predG1V,sr.g1v,r.bG2===1,1)
     +row('Goles 3ero',r.predG3L,sr.g3l,r.bG3===1,1)
@@ -2592,7 +2592,7 @@ async function rkLoadData(){
       return score;
     });
 
-    RK_DATA.sort(function(a,b){return b.total-a.total||(b.ok1-a.ok1)||(b.ok2-a.ok2)||(b.ok3-a.ok3)||(b.ok4-a.ok4)||b.golesCount-a.golesCount||(a.diffMarcador-b.diffMarcador)||b.ptsQuiz-a.ptsQuiz||a.codigo.localeCompare(b.codigo);});
+    RK_DATA.sort(function(a,b){return b.total-a.total||(a.diffMarcador-b.diffMarcador)||b.ptsQuiz-a.ptsQuiz||a.codigo.localeCompare(b.codigo);});
 
     RK_LOADED=true;
     if(sub)sub.textContent='Actualizado · '+RK_DATA.length+' participantes';
@@ -2638,7 +2638,7 @@ function rkRender(mountKey, filter){
   }
 
   // recalcular posiciones dentro del filtro — secuencial estricto (1,2,3,4… sin saltos, el desempate ya viene del sort)
-  var sorted=list.slice().sort(function(a,b){return b.total-a.total||(b.ok1-a.ok1)||(b.ok2-a.ok2)||(b.ok3-a.ok3)||(b.ok4-a.ok4)||b.golesCount-a.golesCount||(a.diffMarcador-b.diffMarcador)||b.ptsQuiz-a.ptsQuiz||a.codigo.localeCompare(b.codigo);});
+  var sorted=list.slice().sort(function(a,b){return b.total-a.total||(a.diffMarcador-b.diffMarcador)||b.ptsQuiz-a.ptsQuiz||a.codigo.localeCompare(b.codigo);});
   var pos=[];
   sorted.forEach(function(r,i){
     pos[i]=i+1;
@@ -2680,7 +2680,7 @@ function rkRender(mountKey, filter){
   }
   podioHtml+='<div class="rk-podio-detail-wrap" id="'+podioDetId+'" style="display:none"></div>';
   if(sorted.length>=1){
-    podioHtml+='<div class="rk-podio-notice">⚠️ Esta información es de forma predeterminada para gestionar los premios y sus lugares. En caso de empates, acercarse a Gestión Humana.</div>';
+    podioHtml+='<div class="rk-podio-notice">⚠️ Esta información es de forma predeterminada para gestionar los premios y sus lugares. En caso de empate el sistema calcula quién más se acercó al resultado de los partidos.</div>';
   }
 
   // ── TOP 10 ──
