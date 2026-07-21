@@ -265,12 +265,16 @@ textarea{resize:none;line-height:1.6}
 @keyframes shk{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
 
 /* ── POLLA: selector de países ── */
-.pc{background:var(--wh);border:2px solid var(--brd);border-radius:12px;overflow:hidden;transition:border-color .2s}
+.pc{background:var(--wh);border:2px solid var(--brd);border-radius:12px;overflow:hidden;transition:border-color .2s;position:relative}
+.pc-lock-overlay{position:absolute;inset:0;background:rgba(255,255,255,.72);backdrop-filter:blur(1.5px);-webkit-backdrop-filter:blur(1.5px);display:flex;align-items:center;justify-content:center;gap:8px;z-index:6;border-radius:0 0 10px 10px;cursor:not-allowed}
+.pc-lock-badge{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.92);border:1.5px solid var(--brd);border-radius:20px;padding:6px 14px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.pc-lock-icon{font-size:15px}
+.pc-lock-txt{font-size:11px;font-weight:800;color:var(--muted)}
 .pc.selected-ok{border-color:rgba(27,107,53,.4);background:var(--okbg)}
 .pch{padding:11px 14px;display:flex;align-items:center;gap:10px;border-bottom:1.5px solid var(--brd);background:var(--gh)}
 .pcn{font-size:32px;font-weight:900;color:var(--red);line-height:1;font-family:Nexa,'Barlow Condensed',sans-serif}
 .pcl{font-size:13px;font-weight:900;color:var(--ink)}.pcs{font-size:11px;color:var(--muted);font-weight:700}
-.pcb{padding:12px;display:flex;flex-direction:column;gap:10px;background:var(--wh)}
+.pcb{padding:12px;display:flex;flex-direction:column;gap:10px;background:var(--wh);position:relative}
 .country-select-wrap{position:relative}
 .country-btn{width:100%;padding:11px 14px;border:2px solid var(--brd);border-radius:10px;background:var(--wh);color:var(--ink);font-family:Nexa,Barlow,sans-serif;font-size:14px;font-weight:700;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px;transition:all .2s}
 .country-btn:hover{border-color:var(--red)}
@@ -444,8 +448,7 @@ textarea{resize:none;line-height:1.6}
 /* LAYOUT */
 body{overflow-x:hidden}
 @media(min-width:920px){
-  .main-grid{grid-template-columns:1fr 380px!important;padding:28px!important}
-  .form-col{background:transparent}
+  .main-grid{grid-template-columns:460px 1fr!important;padding:28px!important}
   .side-col{padding-left:28px;gap:20px}
 }
 
@@ -874,7 +877,7 @@ html, body {
 @keyframes rkFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
 .rk-p-name{font-size:10px;font-weight:800;color:var(--ink);text-align:center;line-height:1.22;max-width:100%;overflow-wrap:break-word;word-break:break-word;white-space:normal;margin-bottom:2px;padding:0 2px}
 .rk-p-loc{font-size:8.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px}
-.rk-p-pts{font-size:13px;font-weight:900;color:#fff;margin-bottom:6px;padding:2px 10px;border-radius:20px}
+.rk-p-pts{font-size:12px;font-weight:900;color:#fff;margin-bottom:6px;padding:2px 9px;border-radius:20px;white-space:nowrap;max-width:100%;box-sizing:border-box}
 .rk-p-bar{width:100%;border-radius:10px 10px 0 0;display:flex;align-items:flex-start;justify-content:center;padding-top:6px;position:relative;overflow:hidden}
 .rk-p-bar::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,0) 60%)}
 .rk-p-bar-num{font-size:20px;font-weight:900;color:rgba(0,0,0,.28);position:relative;z-index:1}
@@ -965,6 +968,10 @@ html, body {
   .rk-podio-wrap{gap:14px;min-height:230px}
   .rk-p-slot{max-width:130px}
 }
+@media(max-width:380px){
+  .rk-p-pts{font-size:10.5px;padding:2px 7px}
+  .rk-p-slot.s1 .rk-p-pts{font-size:11.5px;padding:2px 9px}
+}
 
 /* ══════════════════════════════════════════════════════
    PODIO — efectos "de campeón": barrido de luz + confeti + brillo
@@ -990,7 +997,7 @@ html, body {
 @keyframes rkGoldPulse{0%,100%{box-shadow:0 0 0 3px #fff,0 0 0 6px #FFD100,0 4px 16px rgba(255,209,0,.5)}50%{box-shadow:0 0 0 3px #fff,0 0 0 9px #FFE566,0 4px 26px rgba(255,209,0,.85)}}
 
 .rk-p-slot.s1 .rk-p-name{font-size:12px}
-.rk-p-slot.s1 .rk-p-pts{font-size:15px;padding:3px 14px;box-shadow:0 3px 10px rgba(184,134,11,.4)}
+.rk-p-slot.s1 .rk-p-pts{font-size:13px;padding:3px 11px;white-space:nowrap;box-shadow:0 3px 10px rgba(184,134,11,.4)}
 .rk-p-slot.s1 .rk-p-bar{background:linear-gradient(160deg,#FFF0B0,#FFC400 45%,#C98A00);box-shadow:inset 0 2px 8px rgba(255,255,255,.5),0 -2px 14px rgba(255,193,7,.35)}
 .rk-p-slot.s1 .rk-p-medal{font-size:32px;animation:rkFloat 2.6s ease-in-out infinite,rkMedalGlow 1.8s ease-in-out infinite}
 @keyframes rkMedalGlow{0%,100%{filter:drop-shadow(0 2px 3px rgba(0,0,0,.25)) drop-shadow(0 0 0 rgba(255,209,0,0))}50%{filter:drop-shadow(0 2px 3px rgba(0,0,0,.25)) drop-shadow(0 0 10px rgba(255,209,0,.85))}}
@@ -1449,6 +1456,19 @@ function bloquearInputsPronostico(){
   if(btn)btn.disabled=cerrado;
   const pe=document.getElementById('PE');
   if(cerrado&&pe){pe.style.display='block';pe.textContent='El registro cerró a medianoche. Los pronósticos ya no pueden modificarse.';}
+  [0,1,2,3].forEach(function(i){
+    const pcb=document.querySelector('#PC'+i+' .pcb');
+    if(!pcb)return;
+    const existing=pcb.querySelector('.pc-lock-overlay');
+    if(cerrado&&!existing){
+      const ov=document.createElement('div');
+      ov.className='pc-lock-overlay';
+      ov.innerHTML='<div class="pc-lock-badge"><span class="pc-lock-icon">🔒</span><span class="pc-lock-txt">Pronóstico bloqueado</span></div>';
+      pcb.appendChild(ov);
+    } else if(!cerrado&&existing){
+      existing.remove();
+    }
+  });
 }
 const pad=n=>String(Math.max(0,n)).padStart(2,'0');
 
@@ -2058,6 +2078,7 @@ function P4(){
           <div class="ml">Goles pronosticados</div>
           <input type="number" id="FG${p.i}" min="0" step="1" max="20" value="${fd.g[p.i]>0?fd.g[p.i]:''}" placeholder="0" style="text-align:center"${dis}>
         </div>
+        ${pronosticoCerrado?'<div class="pc-lock-overlay"><div class="pc-lock-badge"><span class="pc-lock-icon">🔒</span><span class="pc-lock-txt">Pronóstico bloqueado</span></div></div>':''}
       </div>
     </div>`).join('')}
     <div id="PE" style="display:${pronosticoCerrado?'block':'none'};padding:11px 14px;background:var(--red-soft);border:2px solid rgba(227,6,19,.3);border-radius:10px;font-size:13px;color:var(--redd);font-weight:700">${pronosticoCerrado?'El registro cerró a medianoche. Los pronósticos ya no pueden modificarse.':''}</div>
