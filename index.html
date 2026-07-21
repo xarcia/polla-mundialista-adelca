@@ -1449,7 +1449,7 @@ const CIERRE_REGISTRO=(function(){
 const registroCerrado=()=>new Date()>=CIERRE_REGISTRO;
 const pronosticoAbierto=()=>!registroCerrado();
 function bloquearInputsPronostico(){
-  const cerrado=!pronosticoAbierto();
+  const cerrado=!pronosticoAbierto()||fd.yaRegistrado;
   ['p1','p2','p3','p4'].forEach(k=>{const el=document.getElementById('F'+k);if(el)el.disabled=cerrado;});
   [0,1,2,3].forEach(i=>{const el=document.getElementById('FG'+i);if(el)el.disabled=cerrado;});
   const btn=document.getElementById('BP');
@@ -2055,7 +2055,7 @@ function b3(){
 
 /* ── P4: PRONÓSTICO ── */
 function P4(){
-  const pronosticoCerrado=!pronosticoAbierto();
+  const pronosticoCerrado=!pronosticoAbierto()||fd.yaRegistrado;
   const dis=pronosticoCerrado?' disabled':'';
   const PS=[
     {n:'1°',l:'Campeón',f:'p1',i:0,s:'Goles en la Final'},
@@ -2081,8 +2081,8 @@ function P4(){
         ${pronosticoCerrado?'<div class="pc-lock-overlay"><div class="pc-lock-badge"><span class="pc-lock-icon">🔒</span><span class="pc-lock-txt">Pronóstico bloqueado</span></div></div>':''}
       </div>
     </div>`).join('')}
-    <div id="PE" style="display:${pronosticoCerrado?'block':'none'};padding:11px 14px;background:var(--red-soft);border:2px solid rgba(227,6,19,.3);border-radius:10px;font-size:13px;color:var(--redd);font-weight:700">${pronosticoCerrado?'El registro cerró a medianoche. Los pronósticos ya no pueden modificarse.':''}</div>
-    <button class="btn bm" id="BP"${dis}>⚽ Enviar mi pronóstico</button>
+    <div id="PE" style="display:${pronosticoCerrado?'block':'none'};padding:11px 14px;background:var(--red-soft);border:2px solid rgba(227,6,19,.3);border-radius:10px;font-size:13px;color:var(--redd);font-weight:700">${pronosticoCerrado?(fd.yaRegistrado?'Tu pronóstico ya fue enviado. El registro es único e irrevocable, no se puede modificar.':'El registro cerró a medianoche. Los pronósticos ya no pueden modificarse.'):''}</div>
+    <button class="btn bm" id="BP"${dis}>${fd.yaRegistrado?'✅ Pronóstico enviado':'⚽ Enviar mi pronóstico'}</button>
     <button class="btn bgh" id="BPB">← Volver</button>
   </div>`;}
 
