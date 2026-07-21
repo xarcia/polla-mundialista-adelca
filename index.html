@@ -1237,7 +1237,7 @@ html, body {
               <div style="display:flex;justify-content:space-between"><span>Top4 3°</span><span style="color:#8B5E2A">2 pts</span></div>
               <div style="display:flex;justify-content:space-between"><span>Top4 4°</span><span style="color:var(--mid)">1 pt</span></div>
             </div>
-            <div style="margin-top:8px;padding-top:8px;border-top:1px dashed var(--brd);font-size:10px;color:var(--muted);font-weight:600;line-height:1.4">🔑 En caso de empate en puntaje total, gana quien haya quedado más cerca del marcador real en la Final y el Tercer puesto (menor diferencia de goles). Si aún hay empate, se compara el quiz.</div>
+            <div style="margin-top:8px;padding-top:8px;border-top:1px dashed var(--brd);font-size:10px;color:var(--muted);font-weight:600;line-height:1.4">🔑 En caso de empate en puntaje total, gana primero quien haya acertado más de los 4 primeros lugares. Si sigue el empate, gana quien haya quedado más cerca del marcador real en la Final y el Tercer puesto. Si aún persiste, se compara el quiz.</div>
           </div>
           <div style="background:#FFF8EA;border-radius:10px;padding:10px 12px;border:1px solid #F0D060">
             <div style="font-size:10px;font-weight:900;color:#8A6200;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">Zonas ganadoras</div>
@@ -2592,7 +2592,7 @@ async function rkLoadData(){
       return score;
     });
 
-    RK_DATA.sort(function(a,b){return b.total-a.total||(a.diffMarcador-b.diffMarcador)||b.ptsQuiz-a.ptsQuiz||a.codigo.localeCompare(b.codigo);});
+    RK_DATA.sort(function(a,b){return b.total-a.total||(b.aciertosPuestos-a.aciertosPuestos)||(a.diffMarcador-b.diffMarcador)||b.ptsQuiz-a.ptsQuiz||a.codigo.localeCompare(b.codigo);});
 
     RK_LOADED=true;
     if(sub)sub.textContent='Actualizado · '+RK_DATA.length+' participantes';
@@ -2638,7 +2638,7 @@ function rkRender(mountKey, filter){
   }
 
   // recalcular posiciones dentro del filtro — secuencial estricto (1,2,3,4… sin saltos, el desempate ya viene del sort)
-  var sorted=list.slice().sort(function(a,b){return b.total-a.total||(a.diffMarcador-b.diffMarcador)||b.ptsQuiz-a.ptsQuiz||a.codigo.localeCompare(b.codigo);});
+  var sorted=list.slice().sort(function(a,b){return b.total-a.total||(b.aciertosPuestos-a.aciertosPuestos)||(a.diffMarcador-b.diffMarcador)||b.ptsQuiz-a.ptsQuiz||a.codigo.localeCompare(b.codigo);});
   var pos=[];
   sorted.forEach(function(r,i){
     pos[i]=i+1;
